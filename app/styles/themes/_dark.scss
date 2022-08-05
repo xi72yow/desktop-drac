@@ -10,28 +10,136 @@
 // See https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme
 // https://www.electronjs.org/docs/api/native-theme#nativethemethemesource
 
+$drakula-black: #21222c !default;
+$drakula-blackSecondary: #414558 !default;
+$drakula-blackTernary: #a7abbe !default;
+$drakula-blackLight: hsla(230, 15%, 15%, 5%) !default;
+$drakula-white: #f8f8f2 !default;
+$drakula-whiteSecondary: #fff !default;
+$drakula-whiteLight: hsla(60, 30%, 96%, 5%) !default;
+$drakula-cyan: #80ffea !default;
+$drakula-cyanSecondary: #ccfff6 !default;
+$drakula-cyanLight: hsla(170, 100%, 75%, 5%) !default;
+$drakula-green: #8aff80 !default;
+$drakula-greenSecondary: #d0ffcc !default;
+$drakula-greenLight: hsla(115, 100%, 75%, 5%) !default;
+$drakula-orange: #ffca80 !default;
+$drakula-orangeSecondary: #ffeacc !default;
+$drakula-orangeLight: hsla(35, 100%, 75%, 5%) !default;
+$drakula-pink: #ff80bf !default;
+$drakula-pinkSecondary: #ffcce6 !default;
+$drakula-pinkLight: hsla(330, 100%, 75%, 5%) !default;
+$drakula-purple: #9580ff !default;
+$drakula-purpleSecondary: #d5ccff !default;
+$drakula-purpleLight: hsl(250, 100%, 75%, 5%) !default;
+$drakula-red: #ff9580 !default;
+$drakula-redSecondary: #ffd5cc !default;
+$drakula-redLight: hsla(10, 100%, 75%, 5%) !default;
+$drakula-yellow: #ffff80 !default;
+$drakula-yellowSecondary: #ffc !default;
+$drakula-yellowLight: hsla(60, 100%, 75%, 5%) !default;
+$drakula-cyan-transparent: rgba(128, 255, 234, 0.1) !default;
+$drakula-green-transparent: rgba(138, 255, 128, 0.1) !default;
+$drakula-orange-transparent: rgba(255, 202, 128, 0.1) !default;
+$drakula-pink-transparent: rgba(255, 128, 191, 0.1) !default;
+$drakula-purple-transparent: rgba(149, 128, 255, 0.1) !default;
+$drakula-red-transparent: rgba(255, 149, 128, 0.1) !default;
+$drakula-yellow-transparent: rgba(255, 255, 128, 0.1) !default;
+$drakula-disabled: #6c7393 !default;
+$drakula-gradientDegree: 135deg !default;
+$drakula-glowColor: hsla(0, 0%, 100%, 0.25) !default;
+$drakula-cyan-100: rgba(128, 255, 234, 0.1) !default;
+$drakula-green-100: rgba(138, 255, 128, 0.1) !default;
+$drakula-orange-100: rgba(255, 202, 128, 0.1) !default;
+$drakula-pink-100: rgba(255, 128, 191, 0.1) !default;
+$drakula-purple-100: rgba(149, 128, 255, 0.1) !default;
+$drakula-red-100: rgba(255, 149, 128, 0.1) !default;
+$drakula-yellow-100: rgba(255, 255, 128, 0.1) !default;
+$drakula-cyan-200: rgba(128, 255, 234, 0.2) !default;
+$drakula-green-200: rgba(138, 255, 128, 0.2) !default;
+$drakula-orange-200: rgba(255, 202, 128, 0.2) !default;
+$drakula-pink-200: rgba(255, 128, 191, 0.2) !default;
+$drakula-purple-200: rgba(149, 128, 255, 0.2) !default;
+$drakula-red-200: rgba(255, 149, 128, 0.2) !default;
+$drakula-yellow-200: rgba(255, 255, 128, 0.2) !default;
+$drakula-cyan-300: rgba(128, 255, 234, 0.3) !default;
+$drakula-green-300: rgba(138, 255, 128, 0.3) !default;
+$drakula-orange-300: rgba(255, 202, 128, 0.3) !default;
+$drakula-pink-300: rgba(255, 128, 191, 0.3) !default;
+$drakula-purple-300: rgba(149, 128, 255, 0.3) !default;
+$drakula-red-300: rgba(255, 149, 128, 0.3) !default;
+$drakula-yellow-300: rgba(255, 255, 128, 0.3) !default;
+$drakula-cyan-400: rgba(128, 255, 234, 0.4) !default;
+$drakula-green-400: rgba(138, 255, 128, 0.4) !default;
+$drakula-orange-400: rgba(255, 202, 128, 0.4) !default;
+$drakula-pink-400: rgba(255, 128, 191, 0.4) !default;
+$drakula-purple-400: rgba(149, 128, 255, 0.4) !default;
+$drakula-red-400: rgba(255, 149, 128, 0.4) !default;
+$drakula-yellow-400: rgba(255, 255, 128, 0.4) !default;
+$drakula-cyan-500: rgba(128, 255, 234, 0.5) !default;
+$drakula-green-500: rgba(138, 255, 128, 0.5) !default;
+$drakula-orange-500: rgba(255, 202, 128, 0.5) !default;
+$drakula-pink-500: rgba(255, 128, 191, 0.5) !default;
+$drakula-purple-500: rgba(149, 128, 255, 0.5) !default;
+$drakula-red-500: rgba(255, 149, 128, 0.5) !default;
+$drakula-yellow-500: rgba(255, 255, 128, 0.5) !default;
+$drakula-cyan-600: rgba(128, 255, 234, 0.6) !default;
+$drakula-green-600: rgba(138, 255, 128, 0.6) !default;
+$drakula-orange-600: rgba(255, 202, 128, 0.6) !default;
+$drakula-pink-600: rgba(255, 128, 191, 0.6) !default;
+$drakula-purple-600: rgba(149, 128, 255, 0.6) !default;
+$drakula-red-600: rgba(255, 149, 128, 0.6) !default;
+$drakula-yellow-600: rgba(255, 255, 128, 0.6) !default;
+$drakula-cyan-700: rgba(128, 255, 234, 0.7) !default;
+$drakula-green-700: rgba(138, 255, 128, 0.7) !default;
+$drakula-orange-700: rgba(255, 202, 128, 0.7) !default;
+$drakula-pink-700: rgba(255, 128, 191, 0.7) !default;
+$drakula-purple-700: rgba(149, 128, 255, 0.7) !default;
+$drakula-red-700: rgba(255, 149, 128, 0.7) !default;
+$drakula-yellow-700: rgba(255, 255, 128, 0.7) !default;
+$drakula-cyan-800: rgba(128, 255, 234, 0.8) !default;
+$drakula-green-800: rgba(138, 255, 128, 0.8) !default;
+$drakula-orange-800: rgba(255, 202, 128, 0.8) !default;
+$drakula-pink-800: rgba(255, 128, 191, 0.8) !default;
+$drakula-purple-800: rgba(149, 128, 255, 0.8) !default;
+$drakula-red-800: rgba(255, 149, 128, 0.8) !default;
+$drakula-yellow-800: rgba(255, 255, 128, 0.8) !default;
+$drakula-cyan-900: rgba(128, 255, 234, 0.9) !default;
+$drakula-green-900: rgba(138, 255, 128, 0.9) !default;
+$drakula-orange-900: rgba(255, 202, 128, 0.9) !default;
+$drakula-pink-900: rgba(255, 128, 191, 0.9) !default;
+$drakula-purple-900: rgba(149, 128, 255, 0.9) !default;
+$drakula-red-900: rgba(255, 149, 128, 0.9) !default;
+$drakula-yellow-900: rgba(255, 255, 128, 0.9) !default;
+$drakula-accentColor: var($drakula-purple) !default;
+
+$drakula-purple-cyan: linear-gradient(var(--gradientDegree), var(--purple) 0%, var(--cyan) 100%) !default;
+$drakula-yellow-pink: linear-gradient(var(--gradientDegree), var(--yellow) 0%, var(--pink) 100%) !default;
+$drakula-cyan-green: linear-gradient(var(--gradientDegree), var(--cyan) 0%, var(--green) 100%) !default;
+$drakula-pink-purple: linear-gradient(var(--gradientDegree), var(--pink) 0%, var(--purple) 100%) !default;
+
 body.theme-dark {
-  --color-new: #{$green};
-  --color-deleted: #{$red};
-  --color-modified: #{$yellow-700};
-  --color-renamed: #{$blue};
-  --color-conflicted: #{$orange};
+  --color-new: #{$drakula-green};
+  --color-deleted: #{$drakula-red};
+  --color-modified: #{$drakula-yellow-700};
+  --color-renamed: #{$drakula-cyan};
+  --color-conflicted: #{$drakula-orange};
 
-  --text-color: #{$gray-300};
-  --text-secondary-color: #{$gray-400};
-  --text-secondary-color-muted: #{darken($gray-500, 10%)};
-  --background-color: #{$gray-900};
+  --text-color: #{$drakula-white};
+  --text-secondary-color: #{$drakula-whiteSecondary};
+  --text-secondary-color-muted: #{darken($drakula-whiteLight, 10%)};
+  --background-color: #{$drakula-black};
 
-  --button-background: #{$blue};
-  --button-hover-background: #{lighten($blue, 5%)};
-  --button-text-color: #{$white};
-  --button-focus-border-color: #{$blue-600};
+  --button-background: #{$drakula-purple-500};
+  --button-hover-background: #{lighten($drakula-purple-500, 5%)};
+  --button-text-color: #{$drakula-white};
+  --button-focus-border-color: #{$drakula-purple-600};
 
   --link-button-color: #{lighten($blue-400, 3%)};
   --link-button-hover-color: #{$blue-400};
   --link-button-selected-hover-color: #{$blue-300};
 
-  --secondary-button-background: #{$gray-800};
+  --secondary-button-background: #{$drakula-blackSecondary};
   --secondary-button-hover-background: var(--secondary-button-background);
   --secondary-button-text-color: var(--text-color);
   --secondary-button-focus-shadow-color: #{rgba($gray-200, 0.75)};
@@ -66,8 +174,8 @@ body.theme-dark {
   // or an item in a tab control header. It's up to each implementation
   // to decide what states to support (active selection, selection, etc).
 
-  --box-background-color: #{darken($gray-900, 3%)};
-  --box-alt-background-color: #{$gray-800};
+  --box-background-color: #{lighten($drakula-black, 3%)};
+  --box-alt-background-color: #{darken($drakula-black, 1%)};
 
   /**
    * Background color for skeleton or "loading" boxes
@@ -79,12 +187,12 @@ body.theme-dark {
    * Border color for boxes.
    */
   --box-border-color: #141414;
-  --box-border-accent-color: #{$blue};
+  --box-border-accent-color: #{$drakula-blackSecondary};
 
   /**
    * Background color for selected boxes without keyboard focus
    */
-  --box-selected-background-color: #{$gray-700};
+  --box-selected-background-color: #{$drakula-black};
 
   /**
    * Text color for when a user hovers over a boxe with a
@@ -115,12 +223,12 @@ body.theme-dark {
   /**
    * Background color for selected boxes with active keyboard focus
    */
-  --box-selected-active-background-color: #{$blue};
+  --box-selected-active-background-color: #{$drakula-blackSecondary};
 
   /**
    * Text color for selected boxes with active keyboard focus
    */
-  --box-selected-active-text-color: #{$white};
+  --box-selected-active-text-color: #{$drakula-white};
 
   /**
    * Border color for selected boxes with active keyboard focus
@@ -150,7 +258,7 @@ body.theme-dark {
   --shadow-color: #{rgba(black, 0.5)};
   --base-box-shadow: 0 2px 7px var(--shadow-color);
 
-  --toolbar-background-color: #{darken($gray-900, 3%)};
+  --toolbar-background-color: #{darken($drakula-black, 3%)};
   --toolbar-border-color: var(--box-border-color);
   --toolbar-text-color: var(--text-color);
   --toolbar-text-secondary-color: var(--text-secondary-color);
@@ -160,7 +268,7 @@ body.theme-dark {
   --toolbar-button-border-color: var(--box-border-color);
   --toolbar-button-secondary-color: var(--toolbar-text-secondary-color);
 
-  --toolbar-button-hover-color: #{$white};
+  --toolbar-button-hover-color: #{$drakula-white};
   --toolbar-button-hover-background-color: #{$gray-800};
   --toolbar-button-hover-border-color: var(--toolbar-button-border-color);
 
@@ -197,7 +305,7 @@ body.theme-dark {
   --toolbar-badge-background-color: #{$gray-700};
   --toolbar-badge-active-background-color: #{$gray-700};
 
-  --tab-bar-active-color: #{$blue};
+  --tab-bar-active-color: #{$drakula-cyan-300};
   --tab-bar-background-color: var(--box-background-color);
   --tab-bar-hover-background-color: #{$gray-800};
 
@@ -212,10 +320,10 @@ body.theme-dark {
     */
   --list-item-badge-color: var(--text-color);
   --list-item-badge-background-color: #{$gray-600};
-  --list-item-selected-badge-color: #{$white};
+  --list-item-selected-badge-color: #{$drakula-white};
   --list-item-selected-badge-background-color: #{$gray-500};
   --list-item-selected-active-badge-color: #{$gray-900};
-  --list-item-selected-active-badge-background-color: #{$white};
+  --list-item-selected-active-badge-background-color: #{$drakula-white};
   --list-item-hover-background-color: #{$gray-800};
 
   /**
@@ -227,7 +335,7 @@ body.theme-dark {
   --toast-notification-background-color: #{rgba(black, 0.8)};
 
   /** The highlight color used for focus rings and focus box shadows */
-  --focus-color: #{$blue};
+  --focus-color: #{$drakula-blackSecondary};
 
   /**
    * An alternative focus color to use when the background color of
@@ -364,7 +472,7 @@ body.theme-dark {
   --pr-commented-icon-background-color: #{$gray-700};
 
   --call-to-action-bubble-background-color: #{$blue};
-  --call-to-action-bubble-color: #{$white};
+  --call-to-action-bubble-color: #{$drakula-white};
 
   --title-tool-tip-background-color: rgb(56, 58, 62);
   --title-tool-tip-shadow: none;
