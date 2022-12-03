@@ -2,8 +2,121 @@
 //
 // This files contains CSS variables accessible to all selectors
 
-// Primer colors, see https://github.com/primer/primer-css/blob/master/modules/primer-support/lib/variables/color-system.scss
-@import '~primer-support/lib/variables/color-system.scss';
+//  colors
+//
+//
+// -------- Grays --------
+$gray-000: #fafbfc !default;
+$gray-100: #f6f8fa !default;
+$gray-200: #e1e4e8 !default;
+$gray-300: #f8f8f2 !default;
+$gray-400: #b6b9c9 !default;
+$gray-500: #626784 !default;
+$gray-600: #58606a !default;
+$gray-700: #414558 !default;
+$gray-800: #262730 !default;
+$gray-900: #21222c !default; // body font color
+
+// -------- Blue --------
+$blue-000: #e1dcff !default;
+$blue-100: #e3ddff !default;
+$blue-200: #d7d0ff !default;
+$blue-300: #c8bdff !default;
+$blue-400: #ae9dff !default;
+$blue-500: #9580ff !default; // Default: Passes AA with #fff
+$blue-600: #6356a4 !default;
+$blue-700: #4c4281 !default;
+$blue-800: #362e59 !default;
+$blue-900: #292344 !default; // Passes with 1/2/300 blues
+
+// -------- Green --------
+$green-000: #f0fff4 !default;
+$green-100: #dcffe4 !default;
+$green-200: #bef5cb !default;
+$green-300: #bdffb7 !default;
+$green-400: #a1ff98 !default;
+$green-500: #8aff80 !default; // Default. passes AA Large
+$green-600: #6fce66 !default; // Text green, passes AA on #fff
+$green-700: #51954b !default;
+$green-800: #325d2e !default;
+$green-900: #1f3a1c !default;
+
+// -------- Yellow --------
+$yellow-000: #fffdef !default;
+$yellow-100: #fffbdd !default;
+$yellow-200: #ffffc9 !default;
+$yellow-300: #ffffb9 !default;
+$yellow-400: #ffff9d !default;
+$yellow-500: #ffff80 !default;
+$yellow-600: #c5c565 !default;
+$yellow-700: #8f8f48 !default;
+$yellow-800: #57572b !default;
+$yellow-900: #474724 !default;
+
+// -------- Orange --------
+$orange-000: #fff8f2 !default;
+$orange-100: #ffebda !default;
+$orange-200: #fce5c5 !default;
+$orange-300: #ffe0b4 !default;
+$orange-400: #ffd59a !default;
+$orange-500: #ffca80 !default; // Default. passes AA Large with #fff
+$orange-600: #c49b63 !default;
+$orange-700: #a07f51 !default;
+$orange-800: #705938 !default;
+$orange-900: #473823 !default;
+
+// -------- Red --------
+$red-000: #ffeef0 !default;
+$red-100: #ffdce0 !default;
+$red-200: #ffd1c8 !default;
+$red-300: #fbc2b7 !default;
+$red-400: #ffb8aa !default;
+$red-500: #ff9580 !default; // Default. passes AA
+$red-600: #c37160 !default;
+$red-700: #94564a !default;
+$red-800: #6c4037 !default;
+$red-900: #4d2d27 !default;
+
+// -------- Purple --------
+$purple-000: #ffecf5 !default;
+$purple-100: #fed5e9 !default;
+$purple-200: #fcc7e2 !default;
+$purple-300: #f9b1d5 !default;
+$purple-400: #fca0ce !default;
+$purple-500: #ff80bf !default; // Default. passes AA Large with #fff
+$purple-600: #bb5d8c !default;
+$purple-700: #974a70 !default;
+$purple-800: #462335 !default;
+$purple-900: #361a28 !default;
+
+// -------- Fades --------
+// Black based on same hue as $gray-900
+$black: #21222c !default;
+$white: #f8f8f2 !default;
+
+$black-fade-15: rgba($black, 0.15) !default;
+$black-fade-30: rgba($black, 0.3) !default;
+$black-fade-50: rgba($black, 0.5) !default;
+$black-fade-70: rgba($black, 0.7) !default;
+$black-fade-85: rgba($black, 0.85) !default;
+
+$white-fade-15: rgba($white, 0.15) !default;
+$white-fade-30: rgba($white, 0.3) !default;
+$white-fade-50: rgba($white, 0.5) !default;
+$white-fade-70: rgba($white, 0.7) !default;
+$white-fade-85: rgba($white, 0.85) !default;
+
+// -------- Color defaults --------
+$red: $red-500 !default;
+$purple: $purple-500 !default;
+$blue: $blue-500 !default;
+$green: $green-500 !default;
+$yellow: $yellow-500 !default;
+$orange: $orange-500 !default;
+
+$gray-dark: #21222c !default;
+$gray-light: #21222c0d !default;
+$gray: #414558 !default;
 
 // This should be something like
 // @media (prefers-color-scheme: dark)
@@ -66,8 +179,8 @@ body.theme-dark {
   // or an item in a tab control header. It's up to each implementation
   // to decide what states to support (active selection, selection, etc).
 
-  --box-background-color: #{darken($gray-900, 3%)};
-  --box-alt-background-color: #{$gray-800};
+  --box-background-color: #282935;
+  --box-alt-background-color: #1f2029;
 
   /**
    * Background color for skeleton or "loading" boxes
@@ -78,7 +191,7 @@ body.theme-dark {
   /**
    * Border color for boxes.
    */
-  --box-border-color: #141414;
+  --box-border-color: #151218;
   --box-border-accent-color: #{$blue};
 
   /**
@@ -150,7 +263,7 @@ body.theme-dark {
   --shadow-color: #{rgba(black, 0.5)};
   --base-box-shadow: 0 2px 7px var(--shadow-color);
 
-  --toolbar-background-color: #{darken($gray-900, 3%)};
+  --toolbar-background-color: #1a1b23;
   --toolbar-border-color: var(--box-border-color);
   --toolbar-text-color: var(--text-color);
   --toolbar-text-secondary-color: var(--text-secondary-color);
