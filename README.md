@@ -1,10 +1,14 @@
-# [GitHub Desktop](https://desktop.github.com) - The Linux Fork
+# [GitHub Desktop](https://desktop.github.com) - The Linux Fork (desktop-drac)
 
-[![CI](https://github.com/shiftkey/desktop/actions/workflows/ci.yml/badge.svg)](https://github.com/shiftkey/desktop/actions/workflows/ci.yml)
+[![CI / Linux](https://github.com/xi72yow/desktop-drac/actions/workflows/ci-linux.yml/badge.svg)](https://github.com/xi72yow/desktop-drac/actions/workflows/ci-linux.yml)
 
 [GitHub Desktop](https://desktop.github.com/) is an open-source [Electron](https://www.electronjs.org/)-based
 GitHub app. It is written in [TypeScript](https://www.typescriptlang.org) and
 uses [React](https://reactjs.org/).
+
+**desktop-drac** is a community-maintained Linux fork, originally based on
+[shiftkey/desktop](https://github.com/shiftkey/desktop) (no longer actively maintained),
+now synced directly with the official [desktop/desktop](https://github.com/desktop/desktop) upstream.
 
 <picture>
   <source
@@ -18,145 +22,62 @@ uses [React](https://reactjs.org/).
   />
 </picture>
 
-## What is this repository for?
+## Installation
 
-This repository contains specific patches on top of the upstream
-`desktop/desktop` repository to support Linux usage.
-
-It also publishes [releases](https://github.com/shiftkey/desktop/releases) for various Linux distributions:
-
- - AppImage (`.AppImage`)
- - Debian (`.deb`)
- - RPM (`.rpm`)
-
-## Installation via package manager
-
-You can use your operating system's package manager to install `github-desktop` and
-keep it up to date on Debian and RPM-based distributions.
-
-### Debian/Ubuntu
-
-There are two APT package feeds available, both hosted in the US. You only need
-to add one or the other here, as both of these are generated based on the
-releases from this repository.
-
-#### [@shiftkey](https://github.com/shiftkey) package feed
+### Debian/Ubuntu (APT)
 
 ```sh
-wget -qO - https://apt.packages.shiftkey.dev/gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/shiftkey-packages.gpg > /dev/null
-sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/shiftkey-packages.gpg] https://apt.packages.shiftkey.dev/ubuntu/ any main" > /etc/apt/sources.list.d/shiftkey-packages.list'
-```
+# Import GPG key
+curl -fsSL https://xi72yow.github.io/desktop-drac/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/desktop-drac.gpg
 
-#### [@mwt](https://github.com/mwt) package feed
+# Add repository
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/desktop-drac.gpg] https://xi72yow.github.io/desktop-drac stable main" | sudo tee /etc/apt/sources.list.d/desktop-drac.list
 
-```sh
-wget -qO - https://mirror.mwt.me/shiftkey-desktop/gpgkey | gpg --dearmor | sudo tee /usr/share/keyrings/mwt-desktop.gpg > /dev/null
-sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/mwt-desktop.gpg] https://mirror.mwt.me/shiftkey-desktop/deb/ any main" > /etc/apt/sources.list.d/mwt-desktop.list'
-```
-
-#### Installation
-
-Once you have a feed configured, run this command to install the application:
-
-```sh
+# Install
 sudo apt update && sudo apt install github-desktop
 ```
 
-### Red Hat/CentOS/Fedora
+Updates are delivered via `sudo apt upgrade`.
 
-There are two RPM package feeds available, both hosted in the US. You only need
-to add one or the other here, as both of these are generated based on the
-releases from this repository.
+### AppImage
 
-#### [@shiftkey](https://github.com/shiftkey) package feed
+Download the latest `.AppImage` from the [Releases](https://github.com/xi72yow/desktop-drac/releases) page.
 
 ```sh
-sudo rpm --import https://rpm.packages.shiftkey.dev/gpg.key
-sudo sh -c 'echo -e "[shiftkey-packages]\nname=GitHub Desktop\nbaseurl=https://rpm.packages.shiftkey.dev/rpm/\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://rpm.packages.shiftkey.dev/gpg.key" > /etc/yum.repos.d/shiftkey-packages.repo'
+chmod +x GitHubDesktop-linux-x86_64-*.AppImage
+./GitHubDesktop-linux-x86_64-*.AppImage
 ```
 
-#### [@mwt](https://github.com/mwt) package feed
+## Available Packages
 
-```sh
-sudo rpm --import https://mirror.mwt.me/shiftkey-desktop/gpgkey
-sudo sh -c 'echo -e "[mwt-packages]\nname=GitHub Desktop\nbaseurl=https://mirror.mwt.me/shiftkey-desktop/rpm\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://mirror.mwt.me/shiftkey-desktop/gpgkey" > /etc/yum.repos.d/mwt-packages.repo'
-```
+| Format | Architecture | Description |
+|---|---|---|
+| `.deb` | amd64 | Debian/Ubuntu package |
+| `.AppImage` | x86_64 | Portable, runs on any Linux distro |
 
-#### Installation
-
-Once you have a feed configured, run this command to install the application:
-
-```sh
-# if yum is your package manager
-sudo yum install github-desktop
-
-# if dnf is your package manager
-sudo dnf install github-desktop
-
-# if zypper is your package manager
-sudo zypper ref && sudo zypper in github-desktop
-```
-
-#### OpenSUSE
-
-There are two RPM package feeds available, both hosted in the US. You only need
-to add one or the other here, as both of these are generated based on the
-releases from this repository.
-
-#### [@shiftkey](https://github.com/shiftkey) package feed
-
-```sh
-sudo rpm --import https://rpm.packages.shiftkey.dev/gpg.key
-sudo sh -c 'echo -e "[shiftkey-packages]\nname=GitHub Desktop\nbaseurl=https://rpm.packages.shiftkey.dev/rpm/\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://rpm.packages.shiftkey.dev/gpg.key" > /etc/zypp/repos.d/shiftkey-packages.repo'
-```
-
-#### [@mwt](https://github.com/mwt) package feed
-
-```sh
-sudo rpm --import https://mirror.mwt.me/shiftkey-desktop/gpgkey
-sudo sh -c 'echo -e "[mwt-packages]\nname=GitHub Desktop\nbaseurl=https://mirror.mwt.me/shiftkey-desktop/rpm\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://mirror.mwt.me/shiftkey-desktop/gpgkey" > /etc/zypp/repos.d/mwt-packages.repo'
-```
-
-#### Installation
-
-```sh
-sudo zypper ref && sudo zypper in github-desktop
-```
-
-
-## Other Distributions
-
-### Arch Linux
-
-Arch Linux users can install GitHub Desktop from the [AUR](https://aur.archlinux.org/packages/github-desktop-bin/).
-
-`gnome-keyring` is required and the daemon must be launched either at login or when the X server is started. Normally this is handled by a display manager, but in other cases following the instructions found on the [Arch Wiki](https://wiki.archlinux.org/index.php/GNOME/Keyring#Using_the_keyring_outside_GNOME) will fix the issue of not being able to save login credentials.
-
-### Cross-Distribution Packages
-
-GitHub Desktop is also available cross-platform as a [Flatpak](https://github.com/flathub/io.github.shiftey.Desktop) and [AppImage](https://appimage.github.io/GitHubDesktop/).
-
-### deb-get
-
-Debian/Ubuntu users can also install directly from this repository using [`deb-get`](https://github.com/wimpysworld/deb-get): `deb-get install github-desktop`.
-
-## Known issues
+## Known Issues
 
 If you're having troubles with Desktop, please refer to the [Known issues](docs/known-issues.md#linux)
 document for guidance and workarounds for common limitations.
 
-If your package manager is still trying to reach PackageCloud, refer to the
-[cleanup instructions](docs/known-issues.md#the-packagecloud-package-feed-is-no-longer-working)
-for details about migrating away.
+## Building from Source
 
-## More information
+```sh
+# Prerequisites: Node.js 24.x, libsecret-1-dev, Python 3.11+
+node vendor/yarn-1.21.1.js install
+node vendor/yarn-1.21.1.js build:prod
+node vendor/yarn-1.21.1.js run package
+```
 
-Please check out the [README](https://github.com/desktop/desktop#github-desktop)
-on the upstream [GitHub Desktop project](https://github.com/desktop/desktop) and
+See [agents.md](agents.md) for a detailed build log and development notes.
+
+## More Information
+
+Please check out the upstream [GitHub Desktop project](https://github.com/desktop/desktop) and
 [desktop.github.com](https://desktop.github.com) for more product-oriented
 information about GitHub Desktop.
 
-See our [getting started documentation](https://docs.github.com/en/desktop/overview/getting-started-with-github-desktop) for more information on how to set up, authenticate, and configure GitHub Desktop.
+See the [getting started documentation](https://docs.github.com/en/desktop/overview/getting-started-with-github-desktop) for more information on how to set up, authenticate, and configure GitHub Desktop.
 
 ## License
 

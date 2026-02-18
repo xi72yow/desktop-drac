@@ -155,11 +155,64 @@ Strategie: **Debian first** - nur amd64, nur `.deb` + AppImage. Kein ARM, kein R
 - `-linux1`: zieht automatisch upstream Changelog
 - `-linux2`+: manuelle Release Notes (eigene Änderungen)
 
+### 11. Upstream-Workflows aufgeräumt
+
+Alle irrelevanten upstream-Workflows gelöscht:
+- `ci.yml` (Mac/Windows CI)
+- `create-draft-release.yml`, `sync-with-upstream.yml`, `release-pr.yml` (upstream Release-Infra)
+- `triage-prs.yml`, `triage-issues.yml`, `triage-scheduled-tasks.yml` (upstream Triage-Bots)
+
+Behalten:
+- `ci-linux.yml` (unsere CI)
+- `codeql.yml` (Security Scanning, kostenlos für öffentliche Repos)
+
+**Achtung**: Beim nächsten upstream-Merge kommen diese Workflows wieder rein und müssen erneut gelöscht werden.
+
+### 12. wrap-ansi Fix für Node 24
+
+`electron-builder` bundelt `cliui`/`yargs` die `wrap-ansi` nutzen. Version 8.x ist ESM-only und crasht unter Node 24 (`TypeError: mixin.wrap is not a function`).
+
+Fix: `wrap-ansi` auf 7.0.0 (letzte CJS-Version) gepinnt via Yarn Resolution in `package.json`:
+```json
+"resolutions": {
+  "wrap-ansi": "7.0.0"
+}
+```
+
+**Achtung**: Beim nächsten upstream-Merge kann `yarn.lock` überschrieben werden. Danach `yarn install` laufen lassen damit die Resolution greift.
+
+### 13. Release-Workflow + APT-Repo auf GitHub Pages
+
+**`workflow_dispatch` Trigger** in `ci-linux.yml`:
+- GitHub Actions Tab -> "Run workflow" -> Version eingeben (z.B. `3.5.5-linux1`)
+- Tag wird automatisch erstellt und gepusht
+- GitHub Release (draft) mit .deb, AppImage, sha256
+- Ohne Version: nur Build (dry run)
+
+**APT-Repository** auf GitHub Pages (`https://xi72yow.github.io/desktop-drac`):
+- `scripts/update-apt-repo.sh` baut Repo-Struktur (`dpkg-scanpackages`, GPG-Signierung)
+- Automatisch deployed nach jedem Release
+- Gleicher GPG-Key wie zed-deb Repo
+- Benötigt `GPG_PRIVATE_KEY` Secret im GitHub Repo
+
+**User-Installation:**
+```bash
+# GPG Key importieren
+curl -fsSL https://xi72yow.github.io/desktop-drac/pubkey.gpg | sudo gpg --dearmor -o /usr/share/keyrings/desktop-drac.gpg
+
+# Repo hinzufügen
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/desktop-drac.gpg] https://xi72yow.github.io/desktop-drac stable main" | sudo tee /etc/apt/sources.list.d/desktop-drac.list
+
+# Installieren
+sudo apt update && sudo apt install github-desktop
+```
+
+Getestet auf Debian Trixie - funktioniert!
+
 ## Nächste Schritte
 
 - [ ] Electron 40 spezifische Änderungen prüfen (API-Deprecations etc.)
 - [ ] Flatpak-Paket testen
-- [ ] Ersten Release-Tag setzen und CI testen
 
 ## Nützliche Befehle
 
