@@ -7,7 +7,6 @@ import {
   setNativeThemeSource,
   shouldUseDarkColors,
 } from '../main-process-proxy'
-import { ThemeSource } from './theme-source'
 
 /**
  * A set of the user-selectable appearances (aka themes)
@@ -15,21 +14,45 @@ import { ThemeSource } from './theme-source'
 export enum ApplicationTheme {
   Light = 'light',
   Dark = 'dark',
+  Dracula = 'dracula',
   System = 'system',
 }
 
-export type ApplicableTheme = ApplicationTheme.Light | ApplicationTheme.Dark
+export type ApplicableTheme =
+  | ApplicationTheme.Light
+  | ApplicationTheme.Dark
+  | ApplicationTheme.Dracula
 
 /**
  * Gets the friendly name of an application theme for use
  * in persisting to storage and/or calculating the required
  * body class name to set in order to apply the theme.
  */
-export function getThemeName(theme: ApplicationTheme): ThemeSource {
+export function getThemeName(theme: ApplicationTheme): string {
   switch (theme) {
     case ApplicationTheme.Light:
       return 'light'
     case ApplicationTheme.Dark:
+      return 'dark'
+    case ApplicationTheme.Dracula:
+      return 'dracula'
+    default:
+      return 'system'
+  }
+}
+
+/**
+ * Maps an application theme to the Electron nativeTheme source.
+ * Electron only understands 'light', 'dark', and 'system'.
+ */
+function getNativeThemeSource(
+  theme: ApplicationTheme
+): 'light' | 'dark' | 'system' {
+  switch (theme) {
+    case ApplicationTheme.Light:
+      return 'light'
+    case ApplicationTheme.Dark:
+    case ApplicationTheme.Dracula:
       return 'dark'
     default:
       return 'system'
@@ -72,7 +95,8 @@ function getApplicationThemeSetting(): ApplicationTheme {
 
   if (
     themeSetting === ApplicationTheme.Light ||
-    themeSetting === ApplicationTheme.Dark
+    themeSetting === ApplicationTheme.Dark ||
+    themeSetting === ApplicationTheme.Dracula
   ) {
     return themeSetting
   }
@@ -104,9 +128,8 @@ export function getPersistedThemeName(): ApplicationTheme {
  * Stores the given theme in the persistent store.
  */
 export function setPersistedTheme(theme: ApplicationTheme): void {
-  const themeName = getThemeName(theme)
   localStorage.setItem(applicationThemeKey, theme)
-  setNativeThemeSource(themeName)
+  setNativeThemeSource(getNativeThemeSource(theme))
 }
 
 /**

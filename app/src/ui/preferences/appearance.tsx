@@ -101,6 +101,10 @@ export class Appearance extends React.Component<
   public renderThemeSwatch = (theme: ApplicationTheme) => {
     const darkThemeImage = encodePathAsUrl(__dirname, 'static/ghd_dark.svg')
     const lightThemeImage = encodePathAsUrl(__dirname, 'static/ghd_light.svg')
+    const draculaThemeImage = encodePathAsUrl(
+      __dirname,
+      'static/ghd_dracula.svg'
+    )
 
     switch (theme) {
       case ApplicationTheme.Light:
@@ -115,6 +119,13 @@ export class Appearance extends React.Component<
           <span>
             <img src={darkThemeImage} alt="" />
             <span className="theme-value-label">Dark</span>
+          </span>
+        )
+      case ApplicationTheme.Dracula:
+        return (
+          <span>
+            <img src={draculaThemeImage} alt="" />
+            <span className="theme-value-label">Dracula</span>
           </span>
         )
       case ApplicationTheme.System:
@@ -168,6 +179,7 @@ export class Appearance extends React.Component<
     const themes = [
       ApplicationTheme.Light,
       ApplicationTheme.Dark,
+      ApplicationTheme.Dracula,
       ...(supportsSystemThemeChanges() ? [ApplicationTheme.System] : []),
     ]
 

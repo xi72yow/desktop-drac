@@ -2333,7 +2333,15 @@ export class AppStore extends TypedBaseStore<IAppState> {
     // Make sure the persisted theme is applied
     setPersistedTheme(this.selectedTheme)
 
-    this.currentTheme = await getCurrentlyAppliedTheme()
+    if (
+      this.selectedTheme === ApplicationTheme.Light ||
+      this.selectedTheme === ApplicationTheme.Dark ||
+      this.selectedTheme === ApplicationTheme.Dracula
+    ) {
+      this.currentTheme = this.selectedTheme
+    } else {
+      this.currentTheme = await getCurrentlyAppliedTheme()
+    }
 
     this.selectedTabSize = getNumber(tabSizeKey, tabSizeDefault)
 
@@ -7111,12 +7119,21 @@ export class AppStore extends TypedBaseStore<IAppState> {
   /**
    * Set the application-wide theme
    */
-  public _setSelectedTheme(theme: ApplicationTheme) {
+  public async _setSelectedTheme(theme: ApplicationTheme) {
     setPersistedTheme(theme)
     this.selectedTheme = theme
-    this.emitUpdate()
 
-    return Promise.resolve()
+    if (
+      theme === ApplicationTheme.Light ||
+      theme === ApplicationTheme.Dark ||
+      theme === ApplicationTheme.Dracula
+    ) {
+      this.currentTheme = theme
+    } else {
+      this.currentTheme = await getCurrentlyAppliedTheme()
+    }
+
+    this.emitUpdate()
   }
 
   /**

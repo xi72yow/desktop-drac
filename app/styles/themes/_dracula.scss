@@ -1,0 +1,401 @@
+// Dracula Theme for GitHub Desktop
+//
+// Based on the Dracula color scheme (https://draculatheme.com/)
+// This file overrides CSS custom properties for the Dracula theme.
+
+// -------- Dracula Color Palette --------
+$drac-gray-000: #fafbfc;
+$drac-gray-100: #f6f8fa;
+$drac-gray-200: #e1e4e8;
+$drac-gray-300: #f8f8f2;
+$drac-gray-400: #b6b9c9;
+$drac-gray-500: #626784;
+$drac-gray-600: #58606a;
+$drac-gray-700: #414558;
+$drac-gray-800: #262730;
+$drac-gray-900: #21222c;
+
+$drac-blue-000: #e1dcff;
+$drac-blue-100: #e3ddff;
+$drac-blue-200: #d7d0ff;
+$drac-blue-300: #c8bdff;
+$drac-blue-400: #ae9dff;
+$drac-blue-500: #9580ff;
+$drac-blue-600: #6356a4;
+$drac-blue-700: #4c4281;
+$drac-blue-800: #362e59;
+$drac-blue-900: #292344;
+
+$drac-green-000: #f0fff4;
+$drac-green-100: #dcffe4;
+$drac-green-200: #bef5cb;
+$drac-green-300: #bdffb7;
+$drac-green-400: #a1ff98;
+$drac-green-500: #8aff80;
+$drac-green-600: #6fce66;
+$drac-green-700: #51954b;
+$drac-green-800: #325d2e;
+$drac-green-900: #1f3a1c;
+
+$drac-yellow-000: #fffdef;
+$drac-yellow-100: #fffbdd;
+$drac-yellow-200: #ffffc9;
+$drac-yellow-300: #ffffb9;
+$drac-yellow-400: #ffff9d;
+$drac-yellow-500: #ffff80;
+$drac-yellow-600: #c5c565;
+$drac-yellow-700: #8f8f48;
+$drac-yellow-800: #57572b;
+$drac-yellow-900: #474724;
+
+$drac-orange-000: #fff8f2;
+$drac-orange-100: #ffebda;
+$drac-orange-200: #fce5c5;
+$drac-orange-300: #ffe0b4;
+$drac-orange-400: #ffd59a;
+$drac-orange-500: #ffca80;
+$drac-orange-600: #c49b63;
+$drac-orange-700: #a07f51;
+$drac-orange-800: #705938;
+$drac-orange-900: #473823;
+
+$drac-red-000: #ffeef0;
+$drac-red-100: #ffdce0;
+$drac-red-200: #ffd1c8;
+$drac-red-300: #fbc2b7;
+$drac-red-400: #ffb8aa;
+$drac-red-500: #ff9580;
+$drac-red-600: #c37160;
+$drac-red-700: #94564a;
+$drac-red-800: #6c4037;
+$drac-red-900: #4d2d27;
+
+$drac-purple-000: #ffecf5;
+$drac-purple-100: #fed5e9;
+$drac-purple-200: #fcc7e2;
+$drac-purple-300: #f9b1d5;
+$drac-purple-400: #fca0ce;
+$drac-purple-500: #ff80bf;
+$drac-purple-600: #bb5d8c;
+$drac-purple-700: #974a70;
+$drac-purple-800: #462335;
+$drac-purple-900: #361a28;
+
+$drac-black: #21222c;
+$drac-white: #f8f8f2;
+
+$drac-red: $drac-red-500;
+$drac-purple: $drac-purple-500;
+$drac-blue: $drac-blue-500;
+$drac-green: $drac-green-500;
+$drac-yellow: $drac-yellow-500;
+$drac-orange: $drac-orange-500;
+
+body.theme-dracula {
+  --color-new: #{$drac-green};
+  --color-deleted: #{$drac-red};
+  --color-modified: #{$drac-yellow-700};
+  --color-renamed: #{$drac-blue};
+  --color-conflicted: #{$drac-orange};
+
+  --text-color: #{$drac-gray-300};
+  --text-secondary-color: #{$drac-gray-400};
+  --text-secondary-color-muted: #{darken($drac-gray-500, 10%)};
+  --background-color: #{$drac-gray-900};
+
+  --button-background: #{$drac-blue};
+  --button-hover-background: #{lighten($drac-blue, 5%)};
+  --button-text-color: #{$drac-white};
+  --button-focus-border-color: #{$drac-blue-600};
+
+  --link-button-color: #{lighten($drac-blue-400, 3%)};
+  --link-button-hover-color: #{$drac-blue-400};
+  --link-button-selected-hover-color: #{$drac-blue-300};
+
+  --secondary-button-background: #{$drac-gray-800};
+  --secondary-button-border-color: var(--box-border-contrast-color);
+  --secondary-button-hover-border-color: #{$drac-gray-300};
+  --secondary-button-hover-background: var(--secondary-button-background);
+  --secondary-button-text-color: var(--text-color);
+  --secondary-button-focus-shadow-color: #{rgba($drac-gray-200, 0.75)};
+  --secondary-button-focus-border-color: #{$drac-gray-300};
+
+  --badge-icon-color: #{$drac-gray-300};
+
+  // Colors used for icons that are inside an input box
+  --input-icon-warning-color: #{$drac-yellow-600};
+  --input-icon-error-color: #{$drac-red-400};
+  --input-icon-hover-background-color: #{$drac-gray-800};
+
+  // Colors used for icons in the commit message warning/error area
+  --commit-message-icon-warning-color: var(--input-icon-warning-color);
+  --commit-message-icon-error-color: var(--input-icon-error-color);
+
+  // Colors used for the separator of commit message action buttons
+  --commit-message-action-button-separator-color: var(--box-border-contrast-color);
+
+  --scroll-bar-thumb-background-color: rgba(255, 255, 255, 0.2);
+  --scroll-bar-thumb-background-color-active: rgba(255, 255, 255, 0.5);
+
+  // Box
+  --box-background-color: #282935;
+  --box-alt-background-color: #1f2029;
+
+  --box-skeleton-background-color: #{$drac-gray-700};
+  --skeleton-background-gradient: -webkit-linear-gradient(left, rgba(36, 41, 46, 0) 0%, rgba(36, 41, 46, 0.5) 50%, rgba(36, 41, 46, 0) 100%);
+
+  --box-border-color: #151218;
+  --box-border-contrast-color: #{lighten($drac-gray-500, 3%)};
+  --box-border-accent-color: #{$drac-blue};
+
+  --box-selected-background-color: #{$drac-gray-700};
+  --box-hover-text-color: var(--text-color);
+  --box-hover-background-color: #{$drac-gray-800};
+  --box-selected-text-color: var(--text-color);
+  --box-selected-border-color: #{$drac-gray-400};
+  --box-selected-active-background-color: #{$drac-blue};
+  --box-selected-active-text-color: #{$drac-white};
+  --box-selected-active-border-color: #{$drac-gray-400};
+
+  --box-overflow-shadow-background: #{linear-gradient(180deg, rgba($drac-gray-900, 0) 0%, rgba($drac-gray-900, 1) 90%, rgba($drac-gray-900, 1) 100%)};
+  --no-shadow-top: #{linear-gradient($drac-gray-900, rgba(255, 255, 255, 0))};
+  --no-shadow-bottom: #{linear-gradient(rgba(255, 255, 255, 0), $drac-gray-900)};
+  --top-shadow: #{linear-gradient(0deg, rgba($drac-gray-900, 0) 0%, rgba(black, 0.6) 90%, rgba(black, 1) 100%)};
+  --bottom-shadow: #{linear-gradient(180deg, rgba($drac-gray-900, 0) 0%, rgba(black, 0.6) 90%, rgba(black, 1) 100%) 0 100%};
+  --box-overflow-shadow-background-two: #{var(--no-shadow-top), var(--no-shadow-bottom) 0 100%, var(--top-shadow), var(--bottom-shadow)};
+
+  --box-placeholder-color: #{$drac-gray-400};
+
+  --co-author-tag-background-color: #{$drac-blue-800};
+  --co-author-tag-border-color: #{$drac-blue-700};
+
+  --commit-warning-badge-background-color: #{$drac-gray-900};
+  --commit-warning-badge-border-color: #{$drac-gray-700};
+
+  --base-border: 1px solid var(--box-border-color);
+  --contrast-border: 1px solid var(--box-border-contrast-color);
+
+  --shadow-color: #{rgba(black, 0.5)};
+  --base-box-shadow: 0 2px 7px var(--shadow-color);
+
+  --toolbar-background-color: #1a1b23;
+  --toolbar-border-color: var(--box-border-color);
+  --toolbar-text-color: var(--text-color);
+  --toolbar-text-secondary-color: var(--text-secondary-color);
+
+  --toolbar-button-color: var(--toolbar-text-color);
+  --toolbar-button-background-color: transparent;
+  --toolbar-button-border-color: var(--box-border-color);
+  --toolbar-button-secondary-color: var(--toolbar-text-secondary-color);
+
+  --toolbar-button-hover-color: #{$drac-white};
+  --toolbar-button-hover-background-color: #{$drac-gray-800};
+  --toolbar-button-hover-border-color: var(--toolbar-button-border-color);
+
+  --toolbar-button-focus-background-color: #{$drac-gray-800};
+
+  --toolbar-button-active-color: var(--text-color);
+  --toolbar-button-active-background-color: var(--background-color);
+  --toolbar-button-active-border-color: var(--background-color);
+
+  --toolbar-button-progress-color: #{$drac-gray-800};
+  --toolbar-button-focus-progress-color: #{$drac-gray-700};
+  --toolbar-button-hover-progress-color: #{$drac-gray-700};
+  --toolbar-dropdown-open-progress-color: #{$drac-gray-200};
+  --toolbar-dropdown-text-warning-color: #{$drac-orange-600};
+  --toolbar-dropdown-text-hover-color: #{$drac-white};
+
+  --toolbar-tooltip-background-color: #{$drac-gray-800};
+  --toolbar-tooltip-shadow-color: black;
+
+  // App menu bar colors (Windows/Linux only)
+  --app-menu-button-color: var(--toolbar-text-color);
+  --app-menu-button-hover-color: var(--toolbar-button-hover-color);
+  --app-menu-button-hover-background-color: var(--toolbar-button-hover-background-color);
+  --app-menu-button-active-color: var(--text-color);
+  --app-menu-button-active-background-color: #{$drac-gray-800};
+  --app-menu-pane-color: var(--text-color);
+  --app-menu-pane-secondary-color: var(--text-secondary-color);
+  --app-menu-pane-background-color: #{$drac-gray-800};
+  --app-menu-divider-color: #{$drac-gray-600};
+
+  --toolbar-badge-background-color: #{$drac-gray-700};
+  --toolbar-badge-active-background-color: #{$drac-gray-700};
+
+  --tab-bar-active-color: #{$drac-blue};
+  --tab-bar-background-color: var(--box-background-color);
+  --tab-bar-hover-background-color: #{$drac-gray-800};
+
+  --tab-bar-count-color: var(--text-color);
+  --tab-bar-count-background-color: #{$drac-gray-700};
+
+  --list-item-badge-color: var(--text-color);
+  --list-item-badge-background-color: #{$drac-gray-600};
+  --list-item-selected-badge-color: #{$drac-white};
+  --list-item-selected-badge-background-color: #{$drac-gray-500};
+  --list-item-selected-active-badge-color: #{$drac-gray-900};
+  --list-item-selected-active-badge-background-color: #{$drac-white};
+  --list-item-hover-background-color: #{$drac-gray-800};
+
+  --toast-notification-color: var(--text-color);
+  --toast-notification-background-color: #{rgba(black, 0.8)};
+
+  --focus-color: #{$drac-blue};
+  --accent-color: #{$drac-blue-200};
+  --diff-linenumber-focus-color: #{$drac-blue-200};
+
+  --alt-focus-color: #{$drac-blue-800};
+
+  --text-field-focus-shadow-color: #{rgba($drac-blue, 0.25)};
+
+  --primary-suggested-action-background: #{$drac-blue-900};
+  --primary-suggested-action-border-color: #{$drac-blue-700};
+  --suggested-action-icon-color: #{$drac-blue-400};
+
+  // Diff view
+  --diff-text-color: var(--text-color);
+  --diff-border-color: #{$drac-gray-800};
+  --diff-gutter-color: #{$drac-gray-800};
+  --diff-gutter-background-color: #{darken($drac-gray-900, 3%)};
+
+  --diff-line-number-color: var(--text-secondary-color);
+  --diff-line-number-column-width: 50px;
+
+  --diff-selected-background-color: #{$drac-blue-700};
+  --diff-selected-border-color: #{$drac-blue-600};
+  --diff-selected-gutter-color: #{$drac-blue-600};
+  --diff-selected-text-color: var(--text-color);
+
+  --diff-add-background-color: #{darken($drac-green-900, 3%)};
+  --diff-add-border-color: #{darken($drac-green-900, 2%)};
+  --diff-add-gutter-color: #{darken($drac-green-900, 2%)};
+  --diff-add-gutter-background-color: #{darken($drac-green-900, 8%)};
+  --diff-add-inner-background-color: #{$drac-green-600};
+  --diff-add-text-color: var(--diff-text-color);
+
+  --diff-delete-background-color: #{darken($drac-red-900, 15%)};
+  --diff-delete-border-color: #{darken($drac-red-900, 10%)};
+  --diff-delete-gutter-color: #{darken($drac-red-900, 10%)};
+  --diff-delete-gutter-background-color: #{darken($drac-red-900, 20%)};
+  --diff-delete-inner-background-color: #{$drac-red-700};
+  --diff-delete-text-color: #{$drac-red-100};
+
+  --diff-hunk-background-color: #{darken($drac-gray-900, 3%)};
+  --diff-hunk-border-color: #{lighten($drac-gray-900, 3%)};
+  --diff-hunk-gutter-color: #{lighten($drac-gray-900, 3%)};
+  --diff-hunk-gutter-background-color: #{darken($drac-gray-900, 6%)};
+  --diff-hunk-text-color: var(--text-secondary-color);
+
+  --diff-hover-background-color: #{$drac-blue-500};
+  --diff-hover-border-color: #{$drac-blue-400};
+  --diff-hover-gutter-color: #{$drac-blue-400};
+  --diff-hover-text-color: var(--diff-text-color);
+
+  --diff-add-hover-background-color: #{$drac-green-900};
+  --diff-add-hover-border-color: #{$drac-green-700};
+  --diff-add-hover-gutter-color: #{$drac-green-700};
+  --diff-add-hover-text-color: var(--text-color);
+
+  --diff-delete-hover-background-color: #{$drac-red-800};
+  --diff-delete-hover-border-color: #{$drac-red-700};
+  --diff-delete-hover-gutter-color: #{$drac-red-700};
+  --diff-delete-hover-text-color: var(--text-color);
+
+  --diff-empty-row-background-color: #{darken($drac-gray-900, 1%)};
+  --diff-empty-row-gutter-background-color: var(--diff-gutter-background-color);
+  --diff-empty-hunk-handle: #{$drac-gray-700};
+
+  // Syntax highlighting text colors
+  --syntax-variable-color: #{$drac-purple-300};
+  --syntax-alt-variable-color: #{$drac-blue-300};
+  --syntax-keyword-color: #{$drac-red-300};
+  --syntax-atom-color: #{$drac-blue-300};
+  --syntax-string-color: #{$drac-orange-300};
+  --syntax-qualifier-color: #{$drac-purple-300};
+  --syntax-type-color: #{$drac-red-300};
+  --syntax-comment-color: #{$drac-gray-400};
+  --syntax-tag-color: #{$drac-green-400};
+  --syntax-attribute-color: #{$drac-purple-300};
+  --syntax-link-color: #{$drac-blue-300};
+  --syntax-header-color: #{$drac-red-300};
+  --syntax-quote-color: #{$drac-green-400};
+
+  // Colors for form errors
+  --error-color: #{$drac-red};
+  --form-error-background: #{darken($drac-red-900, 3%)};
+  --form-error-border-color: #{$drac-red-900};
+  --form-error-text-color: var(--text-color);
+
+  --dialog-banner-success-background: rgba(22, 92, 38, 0.7);
+  --dialog-banner-success-border-color: #{$drac-green-800};
+  --dialog-banner-success-text-color: var(--text-color);
+
+  // Inline form errors
+  --input-warning-text-color: var(--dialog-warning-color);
+  --input-error-text-color: #{$drac-red-300};
+
+  --overlay-background-color: rgba(0, 0, 0, 0.5);
+
+  // Dialog
+  --dialog-warning-color: #{$drac-yellow-600};
+  --dialog-information-color: #{$drac-blue-400};
+  --dialog-error-color: #{$drac-red-600};
+
+  // Banner
+  --banner-warning-background: #272216;
+  --banner-warning-text-color: var(--text-color);
+  --banner-warning-link-color: #6682ff;
+  --banner-warning-icon-color: #{$drac-yellow-700};
+
+  // File warning
+  --file-warning-background-color: #{rgba($drac-yellow-900, 0.4)};
+  --file-warning-color: #{$drac-yellow-700};
+  --file-warning-border-color: #{rgba($drac-yellow-800, 0.4)};
+
+  // Tooltips
+  --tooltip-background-color: #{$drac-gray-800};
+  --tooltip-color: #{$drac-gray-100};
+  --tooltip-shadow-color: #{$drac-black};
+
+  // Inline paths and code
+  --path-segment-background: #{$drac-gray-700};
+  --path-segment-background-focus: #{lighten($drac-gray-700, 5%)};
+
+  .blankslate-image {
+    filter: #{'invert()'} grayscale(1) brightness(8) contrast(0.6);
+  }
+
+  // merge/rebase status indicators
+  --status-pending-color: #{$drac-yellow-700};
+  --status-error-color: #{$drac-red-500};
+  --status-success-color: #{$drac-green-500};
+
+  // PR status icon colors
+  --pr-open-icon-color: #{$drac-green-500};
+  --pr-draft-icon-color: #{$drac-gray-400};
+
+  // PR review colors
+  --pr-timeline-line-color: #{$drac-gray-500};
+  --pr-changes-requested-icon-background-color: #da3633;
+  --pr-approved-icon-background-color: #2da44e;
+  --pr-commented-icon-color: #8b949e;
+  --pr-commented-icon-background-color: #{$drac-gray-700};
+
+  --call-to-action-bubble-background-color: #{$drac-blue};
+  --call-to-action-bubble-color: #{$drac-white};
+
+  --title-tool-tip-background-color: rgb(56, 58, 62);
+  --title-tool-tip-shadow: none;
+
+  // Markdown colors
+  --md-border-default-color: #30363d;
+  --md-border-muted-color: #21262d;
+  --md-canvas-default-color: #0d1117;
+  --md-canvas-subtle-color: #161b22;
+  --md-fg-default-color: #c9d1d9;
+  --md-fg-muted-color: #8b949e;
+  --md-danger-fg-color: #f85149;
+  --md-neutral-muted-color: rgba(110, 118, 129, 0.4);
+  --md-accent-emphasis-color: #1f6feb;
+  --md-accent-fg-color: #58a6ff;
+}

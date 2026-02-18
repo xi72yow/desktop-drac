@@ -51,7 +51,9 @@ export class AppTheme extends React.PureComponent<IAppThemeProps> {
   }
 
   private updateColorScheme = () => {
-    const isDarkTheme = document.body.classList.contains('theme-dark')
+    const isDarkTheme =
+      document.body.classList.contains('theme-dark') ||
+      document.body.classList.contains('theme-dracula')
     const rootStyle = document.documentElement.style
 
     rootStyle.colorScheme = isDarkTheme ? 'dark' : 'light'
