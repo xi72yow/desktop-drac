@@ -19,6 +19,29 @@ env:
   NODE_VERSION: 24.11.1
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: node vendor/yarn-1.21.1.js install
+
+      - run: node vendor/yarn-1.21.1.js validate-electron-version
+      - run: node vendor/yarn-1.21.1.js lint
+      - run: node vendor/yarn-1.21.1.js validate-changelog
+
+      - name: Ensure a clean working directory
+        run: git diff --name-status --exit-code
+
   amd64:
     name: Ubuntu x64
     runs-on: ubuntu-latest
