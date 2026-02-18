@@ -420,6 +420,7 @@ export class PushPullButton extends React.Component<
           onResize={this.onResize}
           maximumWidth={this.props.pushPullButtonWidth.max}
           minimumWidth={this.props.pushPullButtonWidth.min}
+          description="Push pull button"
         >
           {this.renderButton()}
           <span id="push-pull-button-state">
@@ -541,7 +542,7 @@ export class PushPullButton extends React.Component<
       <ToolbarButton
         {...this.defaultButtonProps()}
         title="Publish branch"
-        description="Cannot publish unborn HEAD"
+        description="Cannot publish: no commits"
         icon={octicons.upload}
         disabled={true}
       />

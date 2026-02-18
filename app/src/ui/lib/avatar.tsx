@@ -107,6 +107,10 @@ const knownAvatars: ReadonlyArray<IAvatarUser> = [
   ...dotComBot('dependabot[bot]', 49699333, 29110),
   ...dotComBot('github-actions[bot]', 41898282, 15368),
   ...dotComBot('github-pages[bot]', 52472962, 34598),
+  // https://github.com/apps/copilot-pull-request-reviewer
+  ...dotComBot('Copilot', 175728472, 946600),
+  // https://github.com/apps/copilot-swe-agent
+  ...dotComBot('Copilot', 198982749, 1143301),
 ]
 
 // Preload some of the more popular bot avatars so we don't have to hit the API
@@ -168,6 +172,9 @@ interface IAvatarProps {
   readonly size?: number
 
   readonly accounts: ReadonlyArray<Account>
+
+  /** Defaults true */
+  readonly tooltip?: boolean
 }
 
 interface IAvatarState {
@@ -371,16 +378,10 @@ export class Avatar extends React.Component<IAvatarProps, IAvatarState> {
 
   public render() {
     const title = this.getTitle()
-    const { imageError, user } = this.state
-    const alt = user
-      ? `Avatar for ${user.name || user.email}`
-      : `Avatar for unknown user`
 
-    const now = Date.now()
-    const src = this.state.candidates.find(c => {
-      const lastFailed = FailingAvatars.get(c)
-      return lastFailed === undefined || now - lastFailed > RetryLimit
-    })
+    if (this.props.tooltip === false) {
+      return <div className="avatar-container">{this.renderAvatar()}</div>
+    }
 
     return (
       <TooltippedContent
@@ -390,6 +391,24 @@ export class Avatar extends React.Component<IAvatarProps, IAvatarState> {
         direction={TooltipDirection.NORTH}
         tagName="div"
       >
+        {this.renderAvatar()}
+      </TooltippedContent>
+    )
+  }
+
+  private renderAvatar = () => {
+    const { imageError, user } = this.state
+    const alt = user
+      ? `Avatar for ${user.name || user.email}`
+      : `Avatar for unknown user`
+    const now = Date.now()
+    const src = this.state.candidates.find(c => {
+      const lastFailed = FailingAvatars.get(c)
+      return lastFailed === undefined || now - lastFailed > RetryLimit
+    })
+
+    return (
+      <>
         {(!src || imageError) && (
           <Octicon symbol={DefaultAvatarSymbol} className="avatar" />
         )}
@@ -407,7 +426,7 @@ export class Avatar extends React.Component<IAvatarProps, IAvatarState> {
             style={{ display: imageError ? 'none' : undefined }}
           />
         )}
-      </TooltippedContent>
+      </>
     )
   }
 

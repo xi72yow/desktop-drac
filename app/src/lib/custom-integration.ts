@@ -1,7 +1,6 @@
-import { ChildProcess, SpawnOptions, spawn } from 'child_process'
 import stringArgv from 'string-argv'
 import { promisify } from 'util'
-import { exec } from 'child_process'
+import { exec, spawn, SpawnOptions } from 'child_process'
 import { access, lstat } from 'fs/promises'
 import * as fs from 'fs'
 
@@ -117,7 +116,9 @@ export async function validateCustomIntegrationPath(
 
     return { isValid: isExecutableFile || !!bundleID, bundleID }
   } catch (e) {
-    log.error(`Failed to validate path: ${path}`, e)
+    if (e.code !== 'ENOENT') {
+      log.error(`Failed to validate path: ${path}`, e)
+    }
     return { isValid: false }
   }
 }
@@ -182,22 +183,13 @@ export function migratedCustomIntegration(
  * on Windows, where we need to wrap the command and arguments in quotes when
  * the shell option is enabled.
  *
- * @param command Command to spawn
+ * @param cmd Command to spawn
  * @param args Arguments to pass to the command
  * @param options Options to pass to spawn (optional)
  * @returns The ChildProcess object returned by spawn
  */
-export function spawnCustomIntegration(
-  command: string,
+export const spawnCustomIntegration = (
+  cmd: string,
   args: readonly string[],
-  options?: SpawnOptions
-): ChildProcess {
-  // On Windows, we need to wrap the arguments and the command in quotes,
-  // otherwise the shell will split them by spaces again after invoking spawn.
-  if (__WIN32__ && options?.shell) {
-    command = `"${command}"`
-    args = args.map(a => `"${a}"`)
-  }
-
-  return options ? spawn(command, args, options) : spawn(command, args)
-}
+  opts?: SpawnOptions
+) => spawn(cmd, args, { stdio: 'ignore', detached: true, ...opts })

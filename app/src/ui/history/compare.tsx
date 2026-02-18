@@ -356,6 +356,7 @@ export class CompareSidebar extends React.Component<
 
     return (
       <BranchList
+        repository={this.props.repository}
         ref={this.onBranchesListRef}
         defaultBranch={defaultBranch}
         currentBranch={this.props.currentBranch}
@@ -702,6 +703,7 @@ export class CompareSidebar extends React.Component<
       commitMessage: {
         summary: squashOnto.summary,
         description: squashedDescription,
+        timestamp: Date.now(),
       },
       dialogTitle: `Squash ${allCommitsInSquash.length} Commits`,
       dialogButtonText: `Squash ${allCommitsInSquash.length} Commits`,

@@ -15,6 +15,7 @@ import {
   RepositorySectionTab,
   ChangesSelectionKind,
   IConstrainedValue,
+  CommitOptions,
 } from '../lib/app-state'
 import { Dispatcher } from './dispatcher'
 import { IssuesStore, GitHubUserStore } from '../lib/stores'
@@ -34,6 +35,7 @@ import { DragType } from '../models/drag-drop'
 import { PullRequestSuggestedNextAction } from '../models/pull-request'
 import { clamp } from '../lib/clamp'
 import { Emoji } from '../lib/emoji'
+import { PopupType } from '../models/popup'
 
 interface IRepositoryViewProps {
   readonly repository: Repository
@@ -52,12 +54,14 @@ interface IRepositoryViewProps {
   readonly showSideBySideDiff: boolean
   readonly showDiffCheckMarks: boolean
   readonly askForConfirmationOnDiscardChanges: boolean
+  readonly askForConfirmationOnCommitFilteredChanges: boolean
   readonly askForConfirmationOnDiscardStash: boolean
   readonly askForConfirmationOnCheckoutCommit: boolean
   readonly focusCommitMessage: boolean
   readonly commitSpellcheckEnabled: boolean
   readonly showCommitLengthWarning: boolean
   readonly accounts: ReadonlyArray<Account>
+  readonly shouldShowGenerateCommitMessageCallOut: boolean
 
   /**
    * A value indicating whether or not the application is currently presenting
@@ -108,6 +112,27 @@ interface IRepositoryViewProps {
 
   /** The user's preference of pull request suggested next action to use **/
   readonly pullRequestSuggestedNextAction?: PullRequestSuggestedNextAction
+
+  /** Whether or not to show the changes filter */
+  readonly showChangesFilter: boolean
+
+  /**
+   * Whether there are any hooks in the repository that could be
+   * skipped during commit with the --no-verify flag
+   */
+  readonly hasCommitHooks: boolean
+
+  /**
+   * Whether or not to skip blocking commit hooks when creating commits
+   * by means of passing the `--no-verify` flag to git commit
+   */
+  readonly skipCommitHooks: boolean
+
+  /** Callback to set commit options for the given repository */
+  readonly onUpdateCommitOptions: (
+    repository: Repository,
+    options: CommitOptions
+  ) => void
 }
 
 interface IRepositoryViewState {
@@ -201,6 +226,17 @@ export class RepositoryView extends React.Component<
     )
   }
 
+  private onShowCommitProgress = () => {
+    if (!this.props.state.subscribeToCommitOutput) {
+      return
+    }
+
+    this.props.dispatcher.showPopup({
+      type: PopupType.CommitProgress,
+      subscribeToCommitOutput: this.props.state.subscribeToCommitOutput,
+    })
+  }
+
   private renderChangesSidebar(): JSX.Element {
     const tip = this.props.state.branchesState.tip
 
@@ -244,11 +280,24 @@ export class RepositoryView extends React.Component<
         availableWidth={availableWidth}
         gitHubUserStore={this.props.gitHubUserStore}
         isCommitting={this.props.state.isCommitting}
+        hookProgress={this.props.state.hookProgress}
+        onShowCommitProgress={
+          this.props.state.subscribeToCommitOutput
+            ? this.onShowCommitProgress
+            : undefined
+        }
+        isGeneratingCommitMessage={this.props.state.isGeneratingCommitMessage}
+        shouldShowGenerateCommitMessageCallOut={
+          this.props.shouldShowGenerateCommitMessageCallOut
+        }
         commitToAmend={this.props.state.commitToAmend}
         isPushPullFetchInProgress={this.props.state.isPushPullFetchInProgress}
         focusCommitMessage={this.props.focusCommitMessage}
         askForConfirmationOnDiscardChanges={
           this.props.askForConfirmationOnDiscardChanges
+        }
+        askForConfirmationOnCommitFilteredChanges={
+          this.props.askForConfirmationOnCommitFilteredChanges
         }
         accounts={this.props.accounts}
         isShowingModal={this.props.isShowingModal}
@@ -262,6 +311,10 @@ export class RepositoryView extends React.Component<
         }
         commitSpellcheckEnabled={this.props.commitSpellcheckEnabled}
         showCommitLengthWarning={this.props.showCommitLengthWarning}
+        showChangesFilter={this.props.showChangesFilter}
+        hasCommitHooks={this.props.hasCommitHooks}
+        skipCommitHooks={this.props.skipCommitHooks}
+        onUpdateCommitOptions={this.props.onUpdateCommitOptions}
       />
     )
   }
@@ -351,6 +404,7 @@ export class RepositoryView extends React.Component<
           minimumWidth={this.props.sidebarWidth.min}
           onReset={this.handleSidebarWidthReset}
           onResize={this.handleSidebarResize}
+          description="Repository sidebar"
         >
           {this.renderTabs()}
           {this.renderSidebarContents()}

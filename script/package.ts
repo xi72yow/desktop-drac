@@ -8,6 +8,7 @@ import * as path from 'path'
 import * as electronInstaller from 'electron-winstaller'
 import * as crypto from 'crypto'
 
+import { readFileSync } from 'fs'
 import { getProductName, getCompanyName } from '../app/package-info'
 import {
   getDistPath,
@@ -133,9 +134,9 @@ function packageWindows() {
 
     const metadataPath = join(acsPath, 'metadata.json')
     const acsMetadata = {
-      Endpoint: 'https://eus.codesigning.azure.net/',
-      CodeSigningAccountName: 'github-desktop',
-      CertificateProfileName: 'desktop',
+      Endpoint: 'https://wus3.codesigning.azure.net/',
+      CodeSigningAccountName: 'GitHubInc',
+      CertificateProfileName: 'GitHubInc',
       CorrelationId: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
     }
     writeFileSync(metadataPath, JSON.stringify(acsMetadata))
@@ -213,6 +214,28 @@ async function generateChecksums(files: Array<string>) {
   await writeFile(checksumFile, checksumsText)
 }
 
+function getLinuxDistroFamily(): 'debian' | 'redhat' | 'unknown' {
+  try {
+    const osRelease = readFileSync('/etc/os-release', 'utf8')
+    const idLike =
+      osRelease.match(/^ID_LIKE=(.*)$/m)?.[1]?.replace(/"/g, '') ?? ''
+    const id = osRelease.match(/^ID=(.*)$/m)?.[1]?.replace(/"/g, '') ?? ''
+
+    if (['debian', 'ubuntu'].includes(id) || idLike.includes('debian')) {
+      return 'debian'
+    }
+    if (
+      ['fedora', 'rhel', 'centos', 'opensuse', 'suse'].includes(id) ||
+      idLike.includes('rhel') ||
+      idLike.includes('fedora') ||
+      idLike.includes('suse')
+    ) {
+      return 'redhat'
+    }
+  } catch {}
+  return 'unknown'
+}
+
 async function packageLinux() {
   const helperPath = path.join(getDistPath(), 'chrome-sandbox')
   const exists = await pathExists(helperPath)
@@ -222,11 +245,21 @@ async function packageLinux() {
     await chmod(helperPath, 0o4755)
   }
   try {
-    const files = await packageElectronBuilder()
-    const debianPackage = await packageDebian()
-    const redhatPackage = await packageRedhat()
+    const distroFamily = getLinuxDistroFamily()
+    console.log(`Detected Linux distro family: ${distroFamily}`)
 
-    const installers = [...files, debianPackage, redhatPackage]
+    const files = await packageElectronBuilder()
+    const installers = [...files]
+
+    if (distroFamily === 'debian' || distroFamily === 'unknown') {
+      const debianPackage = await packageDebian()
+      installers.push(debianPackage)
+    }
+
+    if (distroFamily === 'redhat' || distroFamily === 'unknown') {
+      const redhatPackage = await packageRedhat()
+      installers.push(redhatPackage)
+    }
 
     console.log(`Installers created:`)
     for (const installer of installers) {

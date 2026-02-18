@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Account } from '../../models/account'
+import { Account, isDotComAccount } from '../../models/account'
 import { PreferencesTab } from '../../models/preferences'
 import { Dispatcher } from '../dispatcher'
 import { TabBar, TabBarType } from '../tab-bar'
@@ -12,7 +12,6 @@ import {
   getGlobalConfigValue,
   setGlobalConfigValue,
 } from '../../lib/git/config'
-import { getGlobalConfigPath } from '../../lib/git'
 import { lookupPreferredEmail } from '../../lib/email'
 import { Shell, getAvailableShells } from '../../lib/shells'
 import { getAvailableEditors } from '../../lib/editors/lookup'
@@ -49,11 +48,20 @@ import {
   TargetPathArgument,
   isValidCustomIntegration,
 } from '../../lib/custom-integration'
+import {
+  defaultGitHookEnvShell,
+  defaultHooksEnvEnabledValue,
+  getCacheHooksEnv,
+  getGitHookEnvShell,
+  getHooksEnvEnabled,
+  setCacheHooksEnv,
+  setGitHookEnvShell,
+  setHooksEnvEnabled,
+} from '../../lib/hooks/config'
 
 interface IPreferencesProps {
   readonly dispatcher: Dispatcher
-  readonly dotComAccount: Account | null
-  readonly enterpriseAccount: Account | null
+  readonly accounts: ReadonlyArray<Account>
   readonly repository: Repository | null
   readonly onDismissed: () => void
   readonly useWindowsOpenSSH: boolean
@@ -69,6 +77,8 @@ interface IPreferencesProps {
   readonly confirmCheckoutCommit: boolean
   readonly confirmForcePush: boolean
   readonly confirmUndoCommit: boolean
+  readonly askForConfirmationOnCommitFilteredChanges: boolean
+  readonly confirmCommitMessageOverride: boolean
   readonly uncommittedChangesStrategy: UncommittedChangesStrategy
   readonly selectedExternalEditor: string | null
   readonly selectedShell: Shell
@@ -80,7 +90,7 @@ interface IPreferencesProps {
   readonly customShell: ICustomIntegration | null
   readonly titleBarStyle: TitleBarStyle
   readonly repositoryIndicatorsEnabled: boolean
-  readonly onOpenFileInExternalEditor: (path: string) => void
+  readonly onEditGlobalGitConfig: () => void
   readonly underlineLinks: boolean
   readonly showDiffCheckMarks: boolean
 }
@@ -106,6 +116,8 @@ interface IPreferencesState {
   readonly confirmCheckoutCommit: boolean
   readonly confirmForcePush: boolean
   readonly confirmUndoCommit: boolean
+  readonly askForConfirmationOnCommitFilteredChanges: boolean
+  readonly confirmCommitMessageOverride: boolean
   readonly uncommittedChangesStrategy: UncommittedChangesStrategy
   readonly availableEditors: ReadonlyArray<string>
   readonly useCustomEditor: boolean
@@ -130,11 +142,17 @@ interface IPreferencesState {
   readonly initiallySelectedTabSize: number
 
   readonly isLoadingGitConfig: boolean
-  readonly globalGitConfigPath: string | null
 
   readonly underlineLinks: boolean
 
   readonly showDiffCheckMarks: boolean
+
+  readonly selectedGitTabIndex?: number
+  readonly enableGitHookEnv: boolean | undefined
+  readonly cacheGitHookEnv: boolean | undefined
+  readonly selectedGitHookEnvShell: string | undefined
+  // Whether the preferences related to Git hooks environment have been changed
+  readonly hooksPreferencesDirty: boolean
 }
 
 /**
@@ -181,6 +199,8 @@ export class Preferences extends React.Component<
       confirmCheckoutCommit: false,
       confirmForcePush: false,
       confirmUndoCommit: false,
+      askForConfirmationOnCommitFilteredChanges: false,
+      confirmCommitMessageOverride: true,
       uncommittedChangesStrategy: defaultUncommittedChangesStrategy,
       selectedExternalEditor: this.props.selectedExternalEditor,
       availableShells: [],
@@ -190,9 +210,12 @@ export class Preferences extends React.Component<
       initiallySelectedTheme: this.props.selectedTheme,
       initiallySelectedTabSize: this.props.selectedTabSize,
       isLoadingGitConfig: true,
-      globalGitConfigPath: null,
       underlineLinks: this.props.underlineLinks,
       showDiffCheckMarks: this.props.showDiffCheckMarks,
+      enableGitHookEnv: getHooksEnvEnabled(),
+      cacheGitHookEnv: getCacheHooksEnv(),
+      selectedGitHookEnvShell: getGitHookEnvShell(),
+      hooksPreferencesDirty: false,
     }
   }
 
@@ -205,7 +228,8 @@ export class Preferences extends React.Component<
     let committerEmail = initialCommitterEmail
 
     if (!committerName || !committerEmail) {
-      const account = this.props.dotComAccount || this.props.enterpriseAccount
+      const { accounts } = this.props
+      const account = accounts.find(isDotComAccount) ?? accounts.at(0)
 
       if (account) {
         if (!committerName) {
@@ -229,8 +253,6 @@ export class Preferences extends React.Component<
     const availableEditors = editors.map(e => e.editor) ?? null
     const availableShells = shells.map(e => e.shell) ?? null
 
-    const globalGitConfigPath = await getGlobalConfigPath()
-
     this.setState({
       committerName,
       committerEmail,
@@ -251,6 +273,9 @@ export class Preferences extends React.Component<
       confirmCheckoutCommit: this.props.confirmCheckoutCommit,
       confirmForcePush: this.props.confirmForcePush,
       confirmUndoCommit: this.props.confirmUndoCommit,
+      askForConfirmationOnCommitFilteredChanges:
+        this.props.askForConfirmationOnCommitFilteredChanges,
+      confirmCommitMessageOverride: this.props.confirmCommitMessageOverride,
       uncommittedChangesStrategy: this.props.uncommittedChangesStrategy,
       availableShells,
       availableEditors,
@@ -259,7 +284,6 @@ export class Preferences extends React.Component<
       useCustomShell: this.props.useCustomShell,
       customShell: this.props.customShell ?? DefaultCustomIntegration,
       isLoadingGitConfig: false,
-      globalGitConfigPath,
     })
   }
 
@@ -387,6 +411,25 @@ export class Preferences extends React.Component<
     }
   }
 
+  private onSelectedGitTabIndexChanged = (index: number) => {
+    this.setState({ selectedGitTabIndex: index })
+  }
+
+  private onEnableGitHookEnvChanged = (enableGitHookEnv: boolean) => {
+    this.setState({ enableGitHookEnv, hooksPreferencesDirty: true })
+  }
+
+  private onCacheGitHookEnvChanged = (cacheGitHookEnv: boolean) => {
+    this.setState({ cacheGitHookEnv, hooksPreferencesDirty: true })
+  }
+
+  private onSelectedGitHookEnvShellChanged = (selectedShell: string) => {
+    this.setState({
+      selectedGitHookEnvShell: selectedShell,
+      hooksPreferencesDirty: true,
+    })
+  }
+
   private renderActiveTab() {
     const index = this.state.selectedIndex
     let View
@@ -394,8 +437,7 @@ export class Preferences extends React.Component<
       case PreferencesTab.Accounts:
         View = (
           <Accounts
-            dotComAccount={this.props.dotComAccount}
-            enterpriseAccount={this.props.enterpriseAccount}
+            accounts={this.props.accounts}
             onDotComSignIn={this.onDotComSignIn}
             onEnterpriseSignIn={this.onEnterpriseSignIn}
             onLogout={this.onLogout}
@@ -442,16 +484,25 @@ export class Preferences extends React.Component<
             <Git
               name={this.state.committerName}
               email={this.state.committerEmail}
+              accounts={this.props.accounts}
               defaultBranch={this.state.defaultBranch}
-              dotComAccount={this.props.dotComAccount}
-              enterpriseAccount={this.props.enterpriseAccount}
               onNameChanged={this.onCommitterNameChanged}
               onEmailChanged={this.onCommitterEmailChanged}
               onDefaultBranchChanged={this.onDefaultBranchChanged}
               isLoadingGitConfig={this.state.isLoadingGitConfig}
-              selectedExternalEditor={this.props.selectedExternalEditor}
-              onOpenFileInExternalEditor={this.props.onOpenFileInExternalEditor}
-              globalGitConfigPath={this.state.globalGitConfigPath}
+              onEditGlobalGitConfig={this.props.onEditGlobalGitConfig}
+              selectedTabIndex={this.state.selectedGitTabIndex}
+              onSelectedTabIndexChanged={this.onSelectedGitTabIndexChanged}
+              onEnableGitHookEnvChanged={this.onEnableGitHookEnvChanged}
+              onCacheGitHookEnvChanged={this.onCacheGitHookEnvChanged}
+              onSelectedShellChanged={this.onSelectedGitHookEnvShellChanged}
+              enableGitHookEnv={
+                this.state.enableGitHookEnv ?? defaultHooksEnvEnabledValue
+              }
+              cacheGitHookEnv={this.state.cacheGitHookEnv ?? true}
+              selectedShell={
+                this.state.selectedGitHookEnvShell ?? defaultGitHookEnvShell
+              }
             />
           </>
         )
@@ -489,6 +540,12 @@ export class Preferences extends React.Component<
             confirmCheckoutCommit={this.state.confirmCheckoutCommit}
             confirmForcePush={this.state.confirmForcePush}
             confirmUndoCommit={this.state.confirmUndoCommit}
+            askForConfirmationOnCommitFilteredChanges={
+              this.state.askForConfirmationOnCommitFilteredChanges
+            }
+            confirmCommitMessageOverride={
+              this.state.confirmCommitMessageOverride
+            }
             onConfirmRepositoryRemovalChanged={
               this.onConfirmRepositoryRemovalChanged
             }
@@ -500,6 +557,12 @@ export class Preferences extends React.Component<
               this.onConfirmDiscardChangesPermanentlyChanged
             }
             onConfirmUndoCommitChanged={this.onConfirmUndoCommitChanged}
+            onAskForConfirmationOnCommitFilteredChanges={
+              this.onAskForConfirmationOnCommitFilteredChanges
+            }
+            onConfirmCommitMessageOverrideChanged={
+              this.onConfirmCommitMessageOverrideChanged
+            }
             uncommittedChangesStrategy={this.state.uncommittedChangesStrategy}
             onUncommittedChangesStrategyChanged={
               this.onUncommittedChangesStrategyChanged
@@ -618,6 +681,14 @@ export class Preferences extends React.Component<
 
   private onConfirmUndoCommitChanged = (value: boolean) => {
     this.setState({ confirmUndoCommit: value })
+  }
+
+  private onAskForConfirmationOnCommitFilteredChanges = (value: boolean) => {
+    this.setState({ askForConfirmationOnCommitFilteredChanges: value })
+  }
+
+  private onConfirmCommitMessageOverrideChanged = (value: boolean) => {
+    this.setState({ confirmCommitMessageOverride: value })
   }
 
   private onUncommittedChangesStrategyChanged = (
@@ -742,6 +813,20 @@ export class Preferences extends React.Component<
           this.state.repositoryIndicatorsEnabled
         )
       }
+
+      if (this.state.hooksPreferencesDirty) {
+        if (this.state.enableGitHookEnv !== undefined) {
+          setHooksEnvEnabled(this.state.enableGitHookEnv)
+        }
+
+        if (this.state.cacheGitHookEnv !== undefined) {
+          setCacheHooksEnv(this.state.cacheGitHookEnv)
+        }
+
+        if (this.state.selectedGitHookEnvShell !== undefined) {
+          setGitHookEnvShell(this.state.selectedGitHookEnvShell)
+        }
+      }
     } catch (e) {
       if (isConfigFileLockError(e)) {
         const lockFilePath = parseConfigLockFilePathFromError(e.result)
@@ -807,6 +892,12 @@ export class Preferences extends React.Component<
     )
 
     await dispatcher.setConfirmUndoCommitSetting(this.state.confirmUndoCommit)
+    await dispatcher.setConfirmCommitFilteredChanges(
+      this.state.askForConfirmationOnCommitFilteredChanges
+    )
+    await dispatcher.setConfirmCommitMessageOverrideSetting(
+      this.state.confirmCommitMessageOverride
+    )
 
     if (this.state.selectedExternalEditor) {
       await dispatcher.setExternalEditor(this.state.selectedExternalEditor)

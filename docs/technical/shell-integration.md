@@ -45,7 +45,7 @@ export enum Shell {
   GitBash = 'Git Bash',
   Cygwin = 'Cygwin',
   WSL = 'WSL',
-  WindowTerminal = 'Windows Terminal',
+  WindowsTerminal = 'Windows Terminal',
   Alacritty = 'Alacritty',
 }
 ```
@@ -151,6 +151,7 @@ These shells are currently supported:
  - [Alacritty](https://github.com/alacritty/alacritty)
  - [Tabby](https://tabby.sh/)
  - [WezTerm](https://github.com/wez/wezterm)
+ - [Ghostty](https://ghostty.org/)
 
 These are defined in an enum at the top of the file:
 
@@ -234,6 +235,7 @@ The source for the Linux shell integration is found in [`app/src/lib/shells/linu
 These shells are currently supported:
 
  - [GNOME Terminal](https://help.gnome.org/users/gnome-terminal/stable/)
+ - [Ptyxis](https://gitlab.gnome.org/chergert/ptyxis/)
  - [MATE Terminal](https://github.com/mate-desktop/mate-terminal)
  - [Tilix](https://github.com/gnunn1/tilix)
  - [Terminator](https://gnometerminator.blogspot.com)
@@ -242,6 +244,7 @@ These shells are currently supported:
  - [XTerm](http://invisible-island.net/xterm/)
  - [Terminology](https://www.enlightenment.org/docs/apps/terminology.md)
  - [Black Box](https://gitlab.gnome.org/raggesilver/blackbox)
+ - [Ghostty](https://ghostty.org/)
 
 These are defined in an enum at the top of the file:
 

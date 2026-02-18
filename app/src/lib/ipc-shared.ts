@@ -14,9 +14,10 @@ import { EndpointToken } from './endpoint-token'
 import { PathType } from '../ui/lib/app-proxy'
 import { ThemeSource } from '../ui/lib/theme-source'
 import { TitleBarStyle } from '../ui/lib/title-bar-style'
-import { DesktopNotificationPermission } from 'desktop-notifications/dist/notification-permission'
-import { NotificationCallback } from 'desktop-notifications/dist/notification-callback'
+import { DesktopNotificationPermission } from 'desktop-notifications'
+import { NotificationCallback } from 'desktop-notifications'
 import { DesktopAliveEvent } from './stores/alive-store'
+import { CLIAction } from './cli-action'
 
 /**
  * Defines the simplex IPC channel names we use from the renderer
@@ -58,6 +59,7 @@ export type RequestChannels = {
   'app-menu': (menu: IMenu) => void
   'launch-timing-stats': (stats: ILaunchStats) => void
   'url-action': (action: URLActionType) => void
+  'cli-action': (action: CLIAction) => void
   'certificate-error': (
     certificate: Electron.Certificate,
     error: string,
