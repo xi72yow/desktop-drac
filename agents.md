@@ -136,13 +136,30 @@ Ergebnis:
 - SHA256 Checksummen generiert
 - `.deb` installiert und getestet - funktioniert!
 
+### 10. CI/CD vereinfacht (Debian First)
+
+Strategie: **Debian first** - nur amd64, nur `.deb` + AppImage. Kein ARM, kein RPM.
+
+**`.github/workflows/ci-linux.yml`** komplett umgeschrieben:
+- ARM-Jobs (`arm64`, `arm`) entfernt
+- shiftkey Container-Actions durch direkte Build-Steps ersetzt (`actions/setup-node`, `apt-get install`)
+- `amd64` Job: Ubuntu-latest Runner, Node 24.11.1, vendored Yarn
+- Publish-Job: Node 24.11.1, `tsx` statt `ts-node`, `softprops/action-gh-release@v2`
+- Artifacts: nur `*.AppImage`, `*.deb`, `*.sha256`
+
+**`script/generate-release-notes.ts`** angepasst:
+- `SUCCESSFUL_RELEASE_FILE_COUNT` von `3 * 3 * 2 = 18` auf `1 * 2 * 2 = 4` (1 Arch x 2 Formate x 2 Dateien)
+
+**Versionsschema**: `release-{upstream-version}-linux{revision}`
+- Beispiel: `release-3.5.5-linux1` (erster Linux-Release von upstream 3.5.5)
+- `-linux1`: zieht automatisch upstream Changelog
+- `-linux2`+: manuelle Release Notes (eigene Änderungen)
+
 ## Nächste Schritte
 
-- [ ] Merge committen
-- [ ] CI/CD Workflows anpassen (Linux-Build mit Node 24)
 - [ ] Electron 40 spezifische Änderungen prüfen (API-Deprecations etc.)
 - [ ] Flatpak-Paket testen
-- [ ] ARM64 Build testen
+- [ ] Ersten Release-Tag setzen und CI testen
 
 ## Nützliche Befehle
 
