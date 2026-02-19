@@ -67,6 +67,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsecret-1-dev
+
       - name: Install dependencies
         run: node vendor/yarn-1.21.1.js install --frozen-lockfile
 
