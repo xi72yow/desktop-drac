@@ -12,6 +12,19 @@ now synced directly with the official [desktop/desktop](https://github.com/deskt
 
 <picture>
   <source
+    src="https://github.com/user-attachments/assets/211838b3-89d7-4a07-97c9-32ed612d0b35"
+    media="(prefers-color-scheme: dark)"
+  />
+  <img
+    width="1072"
+    src="https://github.com/user-attachments/assets/211838b3-89d7-4a07-97c9-32ed612d0b35"
+    alt="A screenshot of the GitHub Desktop Dracula Theme"
+  />
+</picture>
+
+
+<picture>
+  <source
     srcset="https://user-images.githubusercontent.com/634063/202742848-63fa1488-6254-49b5-af7c-96a6b50ea8af.png"
     media="(prefers-color-scheme: dark)"
   />
@@ -21,6 +34,7 @@ now synced directly with the official [desktop/desktop](https://github.com/deskt
     alt="A screenshot of the GitHub Desktop application showing changes being viewed and committed with two attributed co-authors"
   />
 </picture>
+
 
 ## Installation
 
