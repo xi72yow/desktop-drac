@@ -1,0 +1,96 @@
+name: Check upstream release
+
+on:
+  schedule:
+    - cron: '0 8 * * 1' # Every Monday at 08:00 UTC
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Get current upstream version from tags
+        id: current
+        run: |
+          # Find latest release-X.Y.Z-linuxN tag and extract the upstream version
+          TAG=$(git tag -l 'release-*-linux*' --sort=-v:refname | head -1)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          # release-3.5.5-linux2 -> 3.5.5
+          VERSION=$(echo "$TAG" | sed -E 's/^release-([0-9]+\.[0-9]+\.[0-9]+)-linux[0-9]+$/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Get latest upstream stable release
+        id: upstream
+        run: |
+          # Get recent releases, filter for stable (no beta/test), take the latest
+          VERSION=$(curl -sf https://api.github.com/repos/desktop/desktop/releases \
+            | jq -r '[.[] | select(.prerelease == false) | .tag_name
+                      | select(test("^release-[0-9]+\\.[0-9]+\\.[0-9]+$"))]
+                     | first // empty'  \
+            | sed 's/^release-//')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Compare versions
+        id: compare
+        run: |
+          echo "Current (from tag ${{ steps.current.outputs.tag }}): ${{ steps.current.outputs.version }}"
+          echo "Upstream: ${{ steps.upstream.outputs.version }}"
+          if [ "${{ steps.current.outputs.version }}" != "${{ steps.upstream.outputs.version }}" ]; then
+            echo "needs_merge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "needs_merge=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check for existing issue
+        if: steps.compare.outputs.needs_merge == 'true'
+        id: existing
+        run: |
+          TITLE="Upstream release ${{ steps.upstream.outputs.version }} available"
+          COUNT=$(curl -sf \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?state=open&labels=upstream-merge" \
+            | jq "[.[] | select(.title == \"$TITLE\")] | length")
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Create issue
+        if: steps.compare.outputs.needs_merge == 'true' && steps.existing.outputs.count == '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const current = '${{ steps.current.outputs.version }}';
+            const upstream = '${{ steps.upstream.outputs.version }}';
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Upstream release ${upstream} available`,
+              labels: ['upstream-merge'],
+              body: [
+                `A new upstream release of GitHub Desktop is available.`,
+                ``,
+                `| | Version |`,
+                `|---|---|`,
+                `| **Current** | \`${current}\` |`,
+                `| **Upstream** | \`${upstream}\` |`,
+                ``,
+                `### Release`,
+                `https://github.com/desktop/desktop/releases/tag/release-${upstream}`,
+                ``,
+                `### Merge checklist`,
+                `- [ ] \`git fetch upstream-official && git merge upstream-official/development\``,
+                `- [ ] \`node vendor/yarn-1.21.1.js install\` (fixes wrap-ansi resolution)`,
+                `- [ ] Delete upstream workflows (ci.yml, create-draft-release.yml, etc.)`,
+                `- [ ] \`node vendor/yarn-1.21.1.js build:prod\``,
+                `- [ ] \`node vendor/yarn-1.21.1.js run package\``,
+                `- [ ] Tag and release`,
+              ].join('\n'),
+            });
