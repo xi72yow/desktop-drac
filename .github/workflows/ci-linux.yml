@@ -44,7 +44,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install dependencies
-        run: node vendor/yarn-1.21.1.js install
+        run: node vendor/yarn-1.21.1.js install --frozen-lockfile
 
       - run: node vendor/yarn-1.21.1.js validate-electron-version
       - run: node vendor/yarn-1.21.1.js lint
@@ -68,7 +68,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install dependencies
-        run: node vendor/yarn-1.21.1.js install
+        run: node vendor/yarn-1.21.1.js install --frozen-lockfile
 
       - name: Run unit tests
         run: node vendor/yarn-1.21.1.js test
@@ -135,7 +135,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.version.outputs.skip != 'true'
-        run: node vendor/yarn-1.21.1.js install
+        run: node vendor/yarn-1.21.1.js install --frozen-lockfile
 
       - name: Build production
         if: steps.version.outputs.skip != 'true'
@@ -206,7 +206,7 @@ jobs:
       - name: Generate release notes
         run: |
           node -v
-          node vendor/yarn-1.21.1.js install
+          node vendor/yarn-1.21.1.js install --frozen-lockfile
           node --import tsx script/generate-release-notes.ts "${{ github.workspace }}/artifacts" "${{ env.RELEASE_TAG_WITHOUT_PREFIX }}"
           RELEASE_NOTES_FILE=script/release_notes.txt
           if [[ ! -f "$RELEASE_NOTES_FILE" ]]; then
