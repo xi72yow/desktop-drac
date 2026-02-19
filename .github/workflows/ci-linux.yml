@@ -76,10 +76,14 @@ jobs:
   amd64:
     name: Ubuntu x64
     runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.version.outputs.skip }}
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: actions/setup-python@v5
         with:
@@ -90,21 +94,59 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Determine linux version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ github.event.inputs.version }}" ]]; then
+            LINUX_VERSION="${{ github.event.inputs.version }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/release-* ]]; then
+            LINUX_VERSION="${GITHUB_REF#refs/tags/release-}"
+          else
+            echo "No release version — using app/package.json as-is"
+            echo "patched=false" >> "$GITHUB_OUTPUT"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Skip if this version was already released
+          RELEASE_TAG="release-${LINUX_VERSION}"
+          if git tag -l "$RELEASE_TAG" | grep -q "$RELEASE_TAG" && \
+             curl -sf -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               "https://api.github.com/repos/${{ github.repository }}/releases/tags/${RELEASE_TAG}" > /dev/null 2>&1; then
+            echo "::warning::Release ${RELEASE_TAG} already exists — skipping build"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "linux_version=$LINUX_VERSION" >> "$GITHUB_OUTPUT"
+          echo "patched=true" >> "$GITHUB_OUTPUT"
+          echo "Patching app/package.json version to $LINUX_VERSION"
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('app/package.json', 'utf8'));
+            pkg.version = '$LINUX_VERSION';
+            fs.writeFileSync('app/package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+
       - name: Install system dependencies
+        if: steps.version.outputs.skip != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y libsecret-1-dev libxss-dev fakeroot dpkg
 
       - name: Install dependencies
+        if: steps.version.outputs.skip != 'true'
         run: node vendor/yarn-1.21.1.js install
 
       - name: Build production
+        if: steps.version.outputs.skip != 'true'
         run: node vendor/yarn-1.21.1.js build:prod
 
       - name: Package
+        if: steps.version.outputs.skip != 'true'
         run: node vendor/yarn-1.21.1.js run package
 
       - name: Upload output artifacts
+        if: steps.version.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: ubuntu-amd64-artifacts
@@ -120,8 +162,9 @@ jobs:
     needs: [amd64]
     runs-on: ubuntu-latest
     if: >-
-      startsWith(github.ref, 'refs/tags/') || (github.event_name ==
-      'workflow_dispatch' && github.event.inputs.version != '')
+      needs.amd64.outputs.skip != 'true' && (startsWith(github.ref,
+      'refs/tags/') || (github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.version != ''))
     steps:
       - uses: actions/checkout@v4
         with:
@@ -195,8 +238,9 @@ jobs:
     needs: [amd64]
     runs-on: ubuntu-latest
     if: >-
-      startsWith(github.ref, 'refs/tags/') || (github.event_name ==
-      'workflow_dispatch' && github.event.inputs.version != '')
+      needs.amd64.outputs.skip != 'true' && (startsWith(github.ref,
+      'refs/tags/') || (github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.version != ''))
     steps:
       - uses: actions/checkout@v4
 
