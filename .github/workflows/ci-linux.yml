@@ -53,6 +53,26 @@ jobs:
       - name: Ensure a clean working directory
         run: git diff --name-status --exit-code
 
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: node vendor/yarn-1.21.1.js install
+
+      - name: Run unit tests
+        run: node vendor/yarn-1.21.1.js test
+
   amd64:
     name: Ubuntu x64
     runs-on: ubuntu-latest
