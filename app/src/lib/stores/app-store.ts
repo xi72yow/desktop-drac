@@ -364,7 +364,7 @@ const RecentRepositoriesKey = 'recently-selected-repositories'
  *  maximum number of repositories shown in the "Recent" repositories group
  *  in the repository switcher dropdown
  */
-const RecentRepositoriesLength = 3
+const RecentRepositoriesLength = 7
 
 const defaultSidebarWidth: number = 250
 const sidebarWidthConfigKey: string = 'sidebar-width'
