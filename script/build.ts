@@ -179,12 +179,9 @@ function packageApp() {
 
   // Linux doesn't use the icon setting from electron-packager
   const icon =
-    process.platform === 'linux'
-      ? undefined
-      : join(iconPath, 'icon-logo')
+    process.platform === 'linux' ? undefined : join(iconPath, 'icon-logo')
 
-  const extraResource =
-    process.platform === 'linux' ? [] : [assetsCarPath]
+  const extraResource = process.platform === 'linux' ? [] : [assetsCarPath]
 
   return packager({
     name: getExecutableName(),
