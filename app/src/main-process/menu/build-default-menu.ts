@@ -339,7 +339,7 @@ export function buildDefaultMenu({
           ? `Open in ${selectedShell ?? 'Shell'}`
           : `O&pen in ${selectedShell ?? 'shell'}`,
         id: 'open-in-shell',
-        accelerator: 'Ctrl+`',
+        accelerator: 'CmdOrCtrl+Shift+T',
         click: emit('open-in-shell'),
       },
       {
