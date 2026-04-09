@@ -47,7 +47,7 @@ describe('small action and dialog surfaces', () => {
       dismissedCount++
     }
 
-    mock.module('fs-admin', {
+    mock.module('fs-admin-forked', {
       namedExports: {
         unlink: () => {},
         makeTree: () => {},
