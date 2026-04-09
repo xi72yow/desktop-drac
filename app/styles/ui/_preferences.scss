@@ -13,14 +13,6 @@
     .hooks-warning {
       margin-bottom: var(--spacing);
     }
-
-    .git-hooks-support-description,
-    .git-hooks-env-description,
-    .git-hooks-cache-description {
-      margin-top: var(--spacing);
-      font-size: var(--font-size-sm);
-      color: var(--text-secondary-color);
-    }
   }
 
   .preferences-container {
@@ -45,10 +37,6 @@
 
       .checkbox-component:not(:last-child) {
         margin-bottom: var(--spacing-half);
-      }
-
-      .git-settings-description {
-        margin-top: var(--spacing);
       }
 
       .setting-hint-warning {
@@ -143,7 +131,7 @@
   }
 
   .git-settings-description {
-    margin-top: var(--spacing-double);
+    margin-top: var(--spacing);
     font-size: var(--font-size-sm);
     color: var(--text-secondary-color);
   }
