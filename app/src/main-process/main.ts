@@ -284,8 +284,9 @@ async function handleCommandLineArguments(argv: string[]) {
   } else if (__LINUX__) {
     // we expect this call to have several parameters before the URL we want,
     // so we should filter out the program name as well as any parameters that
-    // look like arguments to Electron
-    const argsWithoutParameters = args.filter(
+    // look like arguments to Electron. filter the raw argv array here — `args`
+    // is the parsed minimist object and has no .filter.
+    const argsWithoutParameters = argv.filter(
       (a: string) => !a.endsWith('github-desktop') && !a.startsWith('--')
     )
     if (argsWithoutParameters.length > 0) {
