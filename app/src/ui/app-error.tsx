@@ -16,7 +16,7 @@ import { Ref } from './lib/ref'
 import { GitError as DugiteError } from 'dugite'
 import { LinkButton } from './lib/link-button'
 import { getFileFromExceedsError } from '../lib/helpers/regex'
-import { CopilotError } from '../lib/copilot-error'
+import { CopilotError, getCopilotErrorDisplayInfo } from '../lib/copilot-error'
 import { Terminal } from './terminal'
 import { coerceToString } from '../lib/git/coerce-to-string'
 
@@ -127,26 +127,39 @@ export class AppError extends React.Component<IAppErrorProps, IAppErrorState> {
       )
     }
 
-    if (isCopilotExceededQuotaError(e)) {
-      const copilotPlansURL = 'https://github.com/features/copilot/plans'
-      return (
-        <>
-          <p>{e.message}</p>
-          <p>
-            <LinkButton uri={copilotPlansURL}>
-              Upgrade to increase your limit.
-            </LinkButton>
-          </p>
-        </>
-      )
+    if (e instanceof CopilotError) {
+      const displayInfo = getCopilotErrorDisplayInfo(e)
+      if (displayInfo !== null) {
+        const { actionText, actionURL, message, retryAfterMessage } =
+          displayInfo
+
+        return (
+          <>
+            <p>{message}</p>
+            {retryAfterMessage !== undefined ? (
+              <p>{retryAfterMessage}</p>
+            ) : null}
+            {actionText !== undefined && actionURL !== undefined ? (
+              <p>
+                <LinkButton uri={actionURL}>{actionText}</LinkButton>
+              </p>
+            ) : null}
+          </>
+        )
+      }
     }
 
     return <p>{e.message}</p>
   }
 
   private getTitle(error: Error) {
-    if (isCopilotExceededQuotaError(error)) {
-      return 'Quota exceeded'
+    const underlyingError = getUnderlyingError(error)
+
+    if (underlyingError instanceof CopilotError) {
+      const displayInfo = getCopilotErrorDisplayInfo(underlyingError)
+      if (displayInfo !== null) {
+        return displayInfo.title
+      }
     }
 
     switch (getDugiteError(error)) {
@@ -307,19 +320,19 @@ export class AppError extends React.Component<IAppErrorProps, IAppErrorState> {
   }
 }
 
-function getUnderlyingError(error: Error): Error {
+export function getUnderlyingError(error: Error): Error {
   return isErrorWithMetaData(error) ? error.underlyingError : error
 }
 
-function isErrorWithMetaData(error: Error): error is ErrorWithMetadata {
+export function isErrorWithMetaData(error: Error): error is ErrorWithMetadata {
   return error instanceof ErrorWithMetadata
 }
 
-function isGitError(error: Error): error is GitError {
+export function isGitError(error: Error): error is GitError {
   return error instanceof GitError
 }
 
-function isRawGitError(error: Error | null) {
+export function isRawGitError(error: Error | null) {
   if (!error) {
     return false
   }
@@ -341,15 +354,6 @@ function getRetryActionType(error: Error) {
   }
 
   return error.metadata.retryAction?.type
-}
-
-function isCopilotExceededQuotaError(error: Error) {
-  const e = getUnderlyingError(error)
-
-  if (e instanceof CopilotError) {
-    return e.isQuotaExceededError
-  }
-  return false
 }
 
 function getDugiteError(error: Error) {

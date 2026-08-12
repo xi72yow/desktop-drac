@@ -20,6 +20,9 @@
     .tab-container {
       border-left: var(--base-border);
       flex: 1;
+      // Without this, a tab whose content has long unbroken text can
+      // grow past the dialog's max-width and break out the right edge.
+      min-width: 0;
     }
 
     fieldset {
@@ -52,6 +55,15 @@
   .tab-bar {
     .icon {
       width: 16px;
+    }
+  }
+
+  .formatting-section {
+    margin-top: var(--spacing);
+
+    .prefer-absolute-dates {
+      margin-top: var(--spacing);
+      margin-bottom: var(--spacing);
     }
   }
 
@@ -130,23 +142,24 @@
     }
   }
 
-  .git-settings-description {
+  .settings-description {
     margin-top: var(--spacing);
     font-size: var(--font-size-sm);
     color: var(--text-secondary-color);
   }
 
+  .example-link {
+    cursor: default !important;
+  }
+
   .theme-selector {
     display: flex;
-    flex-wrap: wrap;
     margin: 0 calc(var(--spacing-half) * -1);
 
     .radio-button-component {
       display: block;
-      flex-shrink: 0;
       padding: var(--spacing-half);
       position: relative;
-      width: 50%;
       margin: 0;
 
       label {

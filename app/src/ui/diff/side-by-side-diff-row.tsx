@@ -453,10 +453,10 @@ export class SideBySideDiffRow extends React.Component<
 
           {syntaxHighlightLine(data.content, data.tokens)}
           {data.noNewLineIndicator && (
-            <Octicon
-              symbol={narrowNoNewlineSymbol}
-              title="No newline at end of file"
-            />
+            <span className="no-newline-indicator">
+              <Octicon symbol={narrowNoNewlineSymbol} />
+              <span> No newline at end of file</span>
+            </span>
           )}
         </div>
       </div>
@@ -940,7 +940,7 @@ export class SideBySideDiffRow extends React.Component<
   }
 
   private onMouseDownLineNumber = (evt: React.MouseEvent) => {
-    if (evt.buttons === 2) {
+    if (evt.button !== 0) {
       return
     }
 
