@@ -22,6 +22,10 @@ interface IRepositoryListItemContextMenuConfig {
   onRemoveRepositoryAlias: (repository: Repository) => void
   onCreateWorktree?: (repository: Repository) => void
   onShowWorktrees?: (repository: Repository) => void
+  readonly isPinned: boolean
+  readonly repositoryPinnable: boolean
+  onPinRepository?: (repository: Repositoryish) => void
+  onUnpinRepository?: (repository: Repositoryish) => void
 }
 
 export const generateRepositoryListContextMenu = (
@@ -41,6 +45,7 @@ export const generateRepositoryListContextMenu = (
   const items: ReadonlyArray<IMenuItem> = [
     ...buildAliasMenuItems(config),
     ...buildWorktreeMenuItems(config),
+    ...buildPinMenuItems(config),
     {
       label: __DARWIN__ ? 'Copy Repo Name' : 'Copy repo name',
       action: () => clipboard.writeText(repository.name),
@@ -137,4 +142,28 @@ const buildWorktreeMenuItems = (
   }
 
   return items
+}
+
+const buildPinMenuItems = (
+  config: IRepositoryListItemContextMenuConfig
+): ReadonlyArray<IMenuItem> => {
+  if (!config.repositoryPinnable) {
+    return []
+  }
+
+  if (config.isPinned) {
+    return [
+      {
+        label: __DARWIN__ ? 'Unpin Repository' : 'Unpin repository',
+        action: () => config.onUnpinRepository?.(config.repository),
+      },
+    ]
+  }
+
+  return [
+    {
+      label: __DARWIN__ ? 'Pin Repository' : 'Pin repository',
+      action: () => config.onPinRepository?.(config.repository),
+    },
+  ]
 }

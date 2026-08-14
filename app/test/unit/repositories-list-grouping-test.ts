@@ -29,7 +29,8 @@ describe('repository list grouping', () => {
   const cache = new Map<number, ILocalRepositoryState>()
 
   it('groups repositories by owners/Enterprise/Other', () => {
-    const grouped = groupRepositories(repositories, cache, [])
+    const grouped = groupRepositories(repositories, cache, [], [])
+    // Groups: dotcom, enterprise, other (no pinned/updates/recent since no data)
     assert.equal(grouped.length, 3)
 
     assert.equal(grouped[0].identifier.kind, 'dotcom')
@@ -72,6 +73,7 @@ describe('repository list grouping', () => {
     const grouped = groupRepositories(
       [repoC, repoB, repoZ, repoD, repoA],
       cache,
+      [],
       []
     )
     assert.equal(grouped.length, 2)
@@ -127,7 +129,12 @@ describe('repository list grouping', () => {
       false
     )
 
-    const grouped = groupRepositories([repoA, repoB, repoC, repoD], cache, [])
+    const grouped = groupRepositories(
+      [repoA, repoB, repoC, repoD],
+      cache,
+      [],
+      []
+    )
     assert.equal(grouped.length, 3)
 
     assert.equal(grouped[0].identifier.kind, 'dotcom')
@@ -152,5 +159,140 @@ describe('repository list grouping', () => {
 
     assert.equal(grouped[2].items[1].text[0], 'enterprise-repo')
     assert(grouped[2].items[1].needsDisambiguation)
+  })
+
+  it('places pinned repositories in the Pinned group at the top', () => {
+    const repo = new Repository(
+      'pinned-repo',
+      1,
+      gitHubRepoFixture({ owner: 'me', name: 'pinned-repo' }),
+      false
+    )
+    const cache = new Map<number, ILocalRepositoryState>()
+    const grouped = groupRepositories([repo], cache, [], [1])
+    assert.equal(grouped.length, 2)
+    assert.equal(grouped[0].identifier.kind, 'pinned')
+    assert.equal(grouped[0].items.length, 1)
+    assert.equal(grouped[0].items[0].repository.path, 'pinned-repo')
+    // Also appears in dotcom group (dual membership like recent)
+    assert.equal(grouped[1].identifier.kind, 'dotcom')
+    assert.equal(grouped[1].items.length, 1)
+  })
+
+  it('places repositories with updates (behind > 0) in the Updates group', () => {
+    const repo = new Repository(
+      'behind-repo',
+      1,
+      gitHubRepoFixture({ owner: 'me', name: 'behind-repo' }),
+      false
+    )
+    const cache = new Map<number, ILocalRepositoryState>()
+    cache.set(1, { aheadBehind: { ahead: 0, behind: 3 }, changedFilesCount: 0 })
+    const grouped = groupRepositories([repo], cache, [], [])
+    assert.equal(grouped.length, 2)
+    assert.equal(grouped[0].identifier.kind, 'updates')
+    assert.equal(grouped[0].items.length, 1)
+    assert.equal(grouped[0].items[0].repository.path, 'behind-repo')
+    // Also appears in dotcom group (dual membership like recent)
+    assert.equal(grouped[1].identifier.kind, 'dotcom')
+    assert.equal(grouped[1].items.length, 1)
+  })
+
+  it('orders groups as Pinned > Updates > Recent > dotcom > enterprise > other', () => {
+    const repoPinned = new Repository(
+      'pinned-repo',
+      1,
+      gitHubRepoFixture({ owner: 'me', name: 'pinned-repo' }),
+      false
+    )
+    const repoBehind = new Repository(
+      'behind-repo',
+      2,
+      gitHubRepoFixture({ owner: 'me', name: 'behind-repo' }),
+      false
+    )
+    const repoRecent = new Repository(
+      'recent-repo',
+      3,
+      gitHubRepoFixture({ owner: 'me', name: 'recent-repo' }),
+      false
+    )
+    const repoOther = new Repository('other-repo', 4, null, false)
+    const repoEnterprise = new Repository(
+      'enterprise-repo',
+      5,
+      gitHubRepoFixture({
+        owner: 'business',
+        name: 'enterprise-repo',
+        endpoint: 'https://ghe.io/api/v3',
+      }),
+      false
+    )
+
+    const cache = new Map<number, ILocalRepositoryState>()
+    cache.set(2, { aheadBehind: { ahead: 0, behind: 2 }, changedFilesCount: 0 })
+
+    // Need 8+ repos total for the recent group to appear (threshold is 7)
+    const dummy1 = new Repository('dummy1', 10, null, false)
+    const dummy2 = new Repository('dummy2', 11, null, false)
+    const dummy3 = new Repository('dummy3', 12, null, false)
+
+    const grouped = groupRepositories(
+      [
+        repoOther,
+        repoPinned,
+        repoEnterprise,
+        repoRecent,
+        repoBehind,
+        dummy1,
+        dummy2,
+        dummy3,
+      ],
+      cache,
+      [3], // recent repo id
+      [1] // pinned repo id
+    )
+
+    const groupKinds = grouped.map(g => g.identifier.kind)
+    assert.deepEqual(groupKinds, [
+      'pinned',
+      'updates',
+      'recent',
+      'dotcom',
+      'enterprise',
+      'other',
+    ])
+  })
+
+  it('does not gate Pinned or Updates groups by recentRepositoriesThreshold', () => {
+    // Only 2 repos (below threshold of 7) but pinned repo should still create Pinned group
+    const repoPinned = new Repository(
+      'pinned-repo',
+      1,
+      gitHubRepoFixture({ owner: 'me', name: 'pinned-repo' }),
+      false
+    )
+    const repoBehind = new Repository(
+      'behind-repo',
+      2,
+      gitHubRepoFixture({ owner: 'me', name: 'behind-repo' }),
+      false
+    )
+    const cache = new Map<number, ILocalRepositoryState>()
+    cache.set(2, { aheadBehind: { ahead: 0, behind: 1 }, changedFilesCount: 0 })
+
+    const grouped = groupRepositories(
+      [repoPinned, repoBehind],
+      cache,
+      [], // empty recent
+      [1] // pinned repo id
+    )
+
+    const groupKinds = grouped.map(g => g.identifier.kind)
+    // Should have Pinned and Updates even though total repos < threshold
+    assert(groupKinds.includes('pinned'))
+    assert(groupKinds.includes('updates'))
+    // Should NOT have Recent group (threshold not met)
+    assert(!groupKinds.includes('recent'))
   })
 })
