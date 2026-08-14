@@ -282,15 +282,25 @@ async function handleCommandLineArguments(argv: string[]) {
     // risk a smuggled cli switch
     return
   } else if (__LINUX__) {
-    // we expect this call to have several parameters before the URL we want,
-    // so we should filter out the program name as well as any parameters that
-    // look like arguments to Electron. filter the raw argv array here — `args`
-    // is the parsed minimist object and has no .filter.
-    const argsWithoutParameters = argv.filter(
-      (a: string) => !a.endsWith('github-desktop') && !a.startsWith('--')
-    )
-    if (argsWithoutParameters.length > 0) {
-      handleAppURL(argsWithoutParameters[0])
+    // On Linux, Electron passes the protocol URL as a positional argument
+    // in the process.argv array during second-instance events and cold boot.
+    // We need to explicitly search for protocol URLs matching our known protocols.
+    const prefixes = Array.from(possibleProtocols, p => `${p}://`)
+    const protocolUrl = argv.find(arg => {
+      if (prefixes.some(p => arg.startsWith(p))) {
+        try {
+          new URL(arg)
+          return true
+        } catch (e) {
+          log.error(`Unable to parse argument as URL: ${arg}`)
+        }
+      }
+      return false
+    })
+
+    if (protocolUrl) {
+      log.info(`Received Linux protocol URL: ${protocolUrl}`)
+      handleAppURL(protocolUrl)
     }
   }
 
