@@ -35,6 +35,9 @@ interface IRepositoriesListProps {
   readonly repositories: ReadonlyArray<Repositoryish>
   readonly recentRepositories: ReadonlyArray<number>
 
+  /** The list of pinned repository ids */
+  readonly pinnedRepositories: ReadonlyArray<number>
+
   /** A cache of the latest repository state values, keyed by the repository id */
   readonly localRepositoryStateLookup: ReadonlyMap<
     number,
@@ -73,6 +76,12 @@ interface IRepositoriesListProps {
 
   /** The text entered by the user to filter their repository list */
   readonly filterText: string
+
+  /** Called to pin a repository. */
+  readonly onPinRepository?: (repository: Repositoryish) => void
+
+  /** Called to unpin a repository. */
+  readonly onUnpinRepository?: (repository: Repositoryish) => void
 
   readonly dispatcher: Dispatcher
 }
@@ -122,14 +131,16 @@ export class RepositoriesList extends React.Component<
     (
       repositories: ReadonlyArray<Repositoryish> | null,
       localRepositoryStateLookup: ReadonlyMap<number, ILocalRepositoryState>,
-      recentRepositories: ReadonlyArray<number>
+      recentRepositories: ReadonlyArray<number>,
+      pinnedRepositories: ReadonlyArray<number>
     ) =>
       repositories === null
         ? []
         : groupRepositories(
             repositories,
             localRepositoryStateLookup,
-            recentRepositories
+            recentRepositories,
+            pinnedRepositories
           )
   )
 
@@ -250,6 +261,10 @@ export class RepositoriesList extends React.Component<
       return group.owner.login
     } else if (kind === 'recent') {
       return 'Recent'
+    } else if (kind === 'pinned') {
+      return 'Pinned'
+    } else if (kind === 'updates') {
+      return 'Updates'
     } else {
       assertNever(kind, `Unknown repository group kind ${kind}`)
     }
@@ -306,6 +321,10 @@ export class RepositoriesList extends React.Component<
         : undefined,
       repository: item.repository,
       shellLabel: this.props.shellLabel,
+      isPinned: this.props.pinnedRepositories.includes(item.repository.id),
+      repositoryPinnable: item.repository instanceof Repository,
+      onPinRepository: this.props.onPinRepository,
+      onUnpinRepository: this.props.onUnpinRepository,
     })
 
     showContextualMenu(items)
@@ -325,7 +344,8 @@ export class RepositoriesList extends React.Component<
     const groups = this.getRepositoryGroups(
       this.props.repositories,
       this.props.localRepositoryStateLookup,
-      this.props.recentRepositories
+      this.props.recentRepositories,
+      this.props.pinnedRepositories
     )
 
     // So there's two types of selection at play here. There's the repository

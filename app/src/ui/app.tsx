@@ -44,6 +44,7 @@ import { CloningRepository } from '../models/cloning-repository'
 import { TitleBar, ZoomInfo, FullScreenInfo } from './window'
 
 import { RepositoriesList } from './repositories-list'
+import { Repositoryish } from './repositories-list/group-repositories'
 import { RepositoryView } from './repository'
 import { RenameBranch } from './rename-branch'
 import { DeleteBranch, DeleteRemoteBranch } from './delete-branch'
@@ -3226,6 +3227,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         onSelectionChanged={this.onSelectionChanged}
         repositories={repositories}
         recentRepositories={this.state.recentRepositories}
+        pinnedRepositories={this.state.pinnedRepositories}
         localRepositoryStateLookup={this.state.localRepositoryStateLookup}
         askForConfirmationOnRemoveRepository={
           this.state.askForConfirmationOnRepositoryRemoval
@@ -3237,6 +3239,8 @@ export class App extends React.Component<IAppProps, IAppState> {
         onOpenInExternalEditor={this.openInExternalEditor}
         externalEditorLabel={this.externalEditorLabel}
         shellLabel={useCustomShell ? undefined : selectedShell}
+        onPinRepository={this.onPinRepository}
+        onUnpinRepository={this.onUnpinRepository}
         dispatcher={this.props.dispatcher}
       />
     )
@@ -3254,6 +3258,20 @@ export class App extends React.Component<IAppProps, IAppState> {
     if (url) {
       this.props.dispatcher.openInBrowser(url)
     }
+  }
+
+  private onPinRepository = (repository: Repositoryish) => {
+    if (!(repository instanceof Repository)) {
+      return
+    }
+    this.props.dispatcher.setRepositoryPinned(repository, true)
+  }
+
+  private onUnpinRepository = (repository: Repositoryish) => {
+    if (!(repository instanceof Repository)) {
+      return
+    }
+    this.props.dispatcher.setRepositoryPinned(repository, false)
   }
 
   private openInShell = (repository: Repository | CloningRepository) => {
@@ -3440,6 +3458,10 @@ export class App extends React.Component<IAppProps, IAppState> {
       shellLabel: this.state.useCustomShell
         ? undefined
         : this.state.selectedShell,
+      isPinned: this.state.pinnedRepositories.includes(repository.id),
+      repositoryPinnable: true,
+      onPinRepository: this.onPinRepository,
+      onUnpinRepository: this.onUnpinRepository,
     })
 
     showContextualMenu(items)

@@ -100,6 +100,11 @@ export interface IAppState {
   readonly recentRepositories: ReadonlyArray<number>
 
   /**
+   * List of IDs of repositories the user has pinned to the top of the list
+   */
+  readonly pinnedRepositories: ReadonlyArray<number>
+
+  /**
    * A cache of the latest repository state values, keyed by the repository id
    */
   readonly localRepositoryStateLookup: Map<number, ILocalRepositoryState>

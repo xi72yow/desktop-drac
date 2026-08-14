@@ -16,6 +16,12 @@ import { Owner } from '../../models/owner'
 
 export type RepositoryListGroup =
   | {
+      kind: 'pinned'
+    }
+  | {
+      kind: 'updates'
+    }
+  | {
       kind: 'recent' | 'other'
     }
   | {
@@ -35,14 +41,18 @@ export type RepositoryListGroup =
 export const getGroupKey = (group: RepositoryListGroup) => {
   const { kind } = group
   switch (kind) {
+    case 'pinned':
+      return `0:pinned`
+    case 'updates':
+      return `1:updates`
     case 'recent':
-      return `0:recent`
+      return `2:recent`
     case 'dotcom':
-      return `1:dotcom:${group.owner.login}`
+      return `3:dotcom:${group.owner.login}`
     case 'enterprise':
-      return `2:enterprise:${group.host}`
+      return `4:enterprise:${group.host}`
     case 'other':
-      return `3:other`
+      return `5:other`
     default:
       assertNever(group, `Unknown repository group kind ${kind}`)
   }
@@ -77,10 +87,15 @@ type RepoGroupItem = { group: RepositoryListGroup; repos: Repositoryish[] }
 export function groupRepositories(
   repositories: ReadonlyArray<Repositoryish>,
   localRepositoryStateLookup: ReadonlyMap<number, ILocalRepositoryState>,
-  recentRepositories: ReadonlyArray<number>
+  recentRepositories: ReadonlyArray<number>,
+  pinnedRepositories: ReadonlyArray<number>
 ): ReadonlyArray<IFilterListGroup<IRepositoryListItem, RepositoryListGroup>> {
+  // The Recent group is shown when the user has enough repositories overall
+  // that "recent" becomes a meaningful categorization; below that threshold
+  // every repo is effectively recent and the group adds noise.
   const includeRecentGroup = repositories.length > recentRepositoriesThreshold
-  const recentSet = includeRecentGroup ? new Set(recentRepositories) : undefined
+  const recentSet = new Set(recentRepositories)
+  const pinnedSet = new Set(pinnedRepositories)
   const groups = new Map<string, RepoGroupItem>()
 
   const addToGroup = (group: RepositoryListGroup, repo: Repositoryish) => {
@@ -95,8 +110,21 @@ export function groupRepositories(
   }
 
   for (const repo of repositories) {
-    if (recentSet?.has(repo.id) && repo instanceof Repository) {
+    if (
+      includeRecentGroup &&
+      recentSet.has(repo.id) &&
+      repo instanceof Repository
+    ) {
       addToGroup({ kind: 'recent' }, repo)
+    }
+
+    if (pinnedSet.has(repo.id)) {
+      addToGroup({ kind: 'pinned' }, repo)
+    }
+
+    const repoState = localRepositoryStateLookup.get(repo.id)
+    if (repoState?.aheadBehind && repoState.aheadBehind.behind > 0) {
+      addToGroup({ kind: 'updates' }, repo)
     }
 
     addToGroup(getGroupForRepository(repo), repo)
