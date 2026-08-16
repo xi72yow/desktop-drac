@@ -10,6 +10,7 @@ import {
   nativeTheme,
 } from 'electron'
 import * as Fs from 'fs'
+import * as Path from 'path'
 
 import { AppWindow } from './app-window'
 import { buildDefaultMenu, getAllMenuItems } from './menu'
@@ -172,10 +173,55 @@ function handleAppURL(url: string) {
 }
 
 let isDuplicateInstance = false
+// Electron stores a `SingletonLock` symlink in the userData directory that
+// points to `<hostname>-<pid>` of the instance that currently holds the
+// single-instance lock. If the previous process exited uncleanly (crash,
+// SIGKILL, terminal hangup) the lock is never released and keeps pointing at a
+// dead PID. A subsequent launch then believes another instance is alive, quits
+// as a "duplicate", and forwards protocol URLs to the dead owner — silently
+// dropping them. Clear the lock if its target process is no longer running so a
+// fresh launch can acquire it cleanly.
+function clearStaleSingleInstanceLock() {
+  try {
+    const lockPath = Path.join(app.getPath('userData'), 'SingletonLock')
+    if (!Fs.existsSync(lockPath)) {
+      return
+    }
+
+    const target = Fs.readlinkSync(lockPath)
+    const pidMatch = /-(\d+)$/.exec(target)
+    if (!pidMatch) {
+      // Unrecognized format — leave it for Electron to handle.
+      return
+    }
+
+    const pid = parseInt(pidMatch[1], 10)
+    if (!Number.isFinite(pid)) {
+      return
+    }
+
+    // `kill -0` checks whether a process exists without signalling it.
+    if (!process.kill(pid, 0)) {
+      return
+    }
+
+    // Process is dead — the lock is stale. Remove it so we can acquire a fresh
+    // lock instead of forwarding protocol URLs to a zombie.
+    Fs.unlinkSync(lockPath)
+    console.log(
+      `Removed stale single-instance lock pointing at dead PID ${pid}`
+    )
+  } catch (e) {
+    // EPERM (process alive) or any other error — defer to Electron.
+    console.log(`Unable to clear single-instance lock: ${e}`)
+  }
+}
+
 // If we're handling a Squirrel event we don't want to enforce single instance.
 // We want to let the updated instance launch and do its work. It will then quit
 // once it's done.
 if (!handlingSquirrelEvent) {
+  clearStaleSingleInstanceLock()
   const gotSingleInstanceLock = app.requestSingleInstanceLock()
   isDuplicateInstance = !gotSingleInstanceLock
 
@@ -282,15 +328,25 @@ async function handleCommandLineArguments(argv: string[]) {
     // risk a smuggled cli switch
     return
   } else if (__LINUX__) {
-    // we expect this call to have several parameters before the URL we want,
-    // so we should filter out the program name as well as any parameters that
-    // look like arguments to Electron. filter the raw argv array here — `args`
-    // is the parsed minimist object and has no .filter.
-    const argsWithoutParameters = argv.filter(
-      (a: string) => !a.endsWith('github-desktop') && !a.startsWith('--')
-    )
-    if (argsWithoutParameters.length > 0) {
-      handleAppURL(argsWithoutParameters[0])
+    // On Linux, Electron passes the protocol URL as a positional argument
+    // in the process.argv array during second-instance events and cold boot.
+    // We need to explicitly search for protocol URLs matching our known protocols.
+    const prefixes = Array.from(possibleProtocols, p => `${p}://`)
+    const protocolUrl = argv.find(arg => {
+      if (prefixes.some(p => arg.startsWith(p))) {
+        try {
+          new URL(arg)
+          return true
+        } catch (e) {
+          log.error(`Unable to parse argument as URL: ${arg}`)
+        }
+      }
+      return false
+    })
+
+    if (protocolUrl) {
+      log.info(`Received Linux protocol URL: ${protocolUrl}`)
+      handleAppURL(protocolUrl)
     }
   }
 
