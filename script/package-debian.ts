@@ -46,6 +46,7 @@ type DebianOptions = {
   mimeType?: Array<string>
   maintainer?: string
   depends?: Array<string>
+  desktopTemplate?: string
 }
 
 const options: DebianOptions = {
@@ -86,6 +87,9 @@ const options: DebianOptions = {
     'x-scheme-handler/x-github-desktop-dev-auth',
   ],
   maintainer: 'Brendan Forster <github@brendanforster.com>',
+  // the stock template ships no StartupWMClass, which leaves GNOME guessing
+  // how to map windows back to this application
+  desktopTemplate: 'script/resources/deb/desktop.ejs',
 }
 
 export async function packageDebian(): Promise<string> {
