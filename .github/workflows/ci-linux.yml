@@ -26,9 +26,6 @@ permissions:
   pages: write
   id-token: write
 
-env:
-  NODE_VERSION: 24.11.1
-
 jobs:
   lint:
     name: Lint
@@ -38,10 +35,10 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Use Node.js ${{ env.NODE_VERSION }}
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: .nvmrc
 
       - name: Install dependencies
         run: node vendor/yarn-1.21.1.js install --frozen-lockfile
@@ -62,10 +59,10 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Use Node.js ${{ env.NODE_VERSION }}
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: .nvmrc
 
       - name: Install system dependencies
         run: |
@@ -94,10 +91,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Use Node.js ${{ env.NODE_VERSION }}
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: .nvmrc
 
       - name: Determine linux version
         id: version
@@ -175,10 +172,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Use Node.js ${{ env.NODE_VERSION }}
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: .nvmrc
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
